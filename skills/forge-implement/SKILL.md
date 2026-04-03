@@ -1,6 +1,6 @@
 ---
 name: forge-implement
-description: Implement one or more GitHub issues using the right builder agent, regardless of current forge phase. Works at any point in the workflow — ideal for implementing audit findings, review issues, or manually added issues. Accepts optional issue numbers as argument.
+description: "REPAIR TOOL: implements specific issues from forge:review, forge:audit, or manual additions. Use AFTER a build phase to fix findings. NOT a replacement for forge:build-frontend or forge:build-backend — those run full agent teams with live code-reviewers. Accepts optional issue numbers (e.g. 42 or 42,43,45), or no args to list all status:agent-todo issues."
 argument-hint: "[optional: issue numbers, comma-separated — e.g. 42 or 42,43,45]"
 allowed-tools: Read, Bash, Agent, TeamCreate, TaskCreate, TaskUpdate, TaskList
 ---
