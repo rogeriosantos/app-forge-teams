@@ -52,9 +52,9 @@ Based on the `phase` field, recommend:
 
 | Phase | Next step |
 |-------|-----------|
-| `ready` | Run `/forge:build` to start Phase 1 (frontend) |
+| `ready` | Run `/forge:build-frontend` to start Phase 1 (frontend) |
 | `frontend-review` | Review the frontend in `./frontend`, then run `/forge:approve` or `/forge:implement` for open findings |
-| `approved` | Run `/forge:build` to start Phase 2 (backend + DB) |
+| `approved` | Run `/forge:build-backend` to start Phase 2 (backend + DB) |
 | `integration-review` | Run `/forge:review` or `/forge:audit` for a final quality pass |
 | `deployed` | App is live. Run `/forge:audit` for ongoing quality checks |
 

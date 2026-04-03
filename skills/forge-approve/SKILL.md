@@ -26,4 +26,4 @@ Ask: "There are [N] open review findings from Phase 1. Proceed to backend/DB bui
 
 4. On confirmation, tell the user:
 > **Frontend approved.** Phase updated to `"approved"`.
-> Run `/forge:build` to start Phase 2 (database + backend build).
+> Run `/forge:build-backend` to start Phase 2 (database + backend build).
