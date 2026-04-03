@@ -66,7 +66,7 @@ Create issues:
 gh issue create \
   --title "[HIGH/MED/LOW] [Architectural issue]" \
   --body "## Finding\n\n[description]\n\n## Affected Files\n\n[list]\n\n## Architectural Impact\n\n[why this matters]\n\n## Recommended Pattern\n\n[what to do — NOT implemented by you]" \
-  --label "type:review-finding,phase:architecture,status:needs-review"
+  --label "type:review-finding,phase:architecture,status:needs-review,status:agent-todo"
 ```
 
 ### 4. Report when done

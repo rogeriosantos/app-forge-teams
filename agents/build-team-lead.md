@@ -56,14 +56,31 @@ Check TaskList regularly. When a builder sends you a completion message:
 - If more issues remain: assign to an idle builder via SendMessage
 - If all tasks complete: proceed to final reporting
 
-## 6. Final report to forge-build
+## 6. Run regression tests
 
-When all tasks are done and reviewer has finished:
+Before reporting phase complete, spawn the test-runner to catch regressions:
+
+Use the Agent tool:
+- `subagent_type`: `"app-forge-teams:test-runner"`
+- `team_name`: same team you are in
+- `name`: `"test-runner"`
+- `prompt`: Pass the combined list of all files changed across all builders (from their `task_done` messages). Instruct it to run the full regression suite (backend pytest + frontend build + playwright on every page) and report back with `{"type": "regression_report", ...}`.
+
+Wait for `regression_report` before sending phase_complete. If regressions are found, include them in the report — do not silently pass.
+
+## 7. Final report to forge-build
+
+When all tasks are done, reviewer has finished, and test-runner has reported:
 ```
 SendMessage to parent: {
   "phase_complete": true,
   "issues_built": [list of issue numbers],
   "review_issues_created": [list],
+  "regression_report": {
+    "status": "pass" | "fail",
+    "regressions_found": N,
+    "summary": "..."
+  },
   "summary": "..."
 }
 ```

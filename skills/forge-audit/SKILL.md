@@ -167,7 +167,7 @@ gh repo view --json nameWithOwner 2>/dev/null
 
 If yes, first ensure all required labels exist:
 ```bash
-for label in audit critical high medium low security dead-code data-integrity consistency saas-pages missing-impl; do
+for label in audit critical high medium low security dead-code data-integrity consistency saas-pages missing-impl status:agent-todo; do
   gh label create "$label" --force 2>/dev/null || true
 done
 ```
@@ -176,17 +176,19 @@ Then create issues:
 
 1. **One issue per CRITICAL finding**
    - Title: `[AUDIT][CRITICAL] [description]`
-   - Labels: `audit`, `critical`, `[category]` (e.g. `security`, `dead-code`, `data-integrity`)
+   - Labels: `audit`, `critical`, `status:agent-todo`, `[category]` (e.g. `security`, `dead-code`, `data-integrity`)
 
 2. **One issue per HIGH finding**
    - Title: `[AUDIT][HIGH] [description]`
-   - Labels: `audit`, `high`, `[category]`
+   - Labels: `audit`, `high`, `status:agent-todo`, `[category]`
 
 3. **One grouped issue per category for MEDIUM findings**
    - Title: `[AUDIT][MEDIUM] [Category] — N findings`
+   - Labels: `audit`, `medium`, `status:agent-todo`, `[category]`
 
 4. **One grouped issue for ALL LOW findings**
    - Title: `[AUDIT][LOW] Cleanup items — N findings`
+   - Labels: `audit`, `low`, `status:agent-todo`
 
 Each issue body must include: file paths, line numbers, description, recommended fix, estimated effort (S/M/L).
 
