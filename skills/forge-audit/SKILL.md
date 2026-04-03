@@ -172,19 +172,33 @@ for label in audit critical high medium low security dead-code data-integrity co
 done
 ```
 
+Use this **category → phase label** mapping when creating issues so `forge:implement` can route them to the right builder:
+
+| Audit category | Phase label to add |
+|---|---|
+| `saas-pages` | `phase:frontend` |
+| `dead-code` (frontend files) | `phase:frontend` |
+| `dead-code` (backend files) | `phase:backend` |
+| `missing-impl` (frontend files) | `phase:frontend` |
+| `missing-impl` (backend files) | `phase:backend` |
+| `data-integrity` | `phase:database` |
+| `security` (API/auth/middleware) | `phase:backend` |
+| `security` (XSS/client-side) | `phase:frontend` |
+| `consistency` | infer from files: `phase:frontend` or `phase:backend` |
+
 Then create issues:
 
 1. **One issue per CRITICAL finding**
    - Title: `[AUDIT][CRITICAL] [description]`
-   - Labels: `audit`, `critical`, `status:agent-todo`, `[category]` (e.g. `security`, `dead-code`, `data-integrity`)
+   - Labels: `audit`, `critical`, `status:agent-todo`, `[category]`, `[phase label from mapping above]`
 
 2. **One issue per HIGH finding**
    - Title: `[AUDIT][HIGH] [description]`
-   - Labels: `audit`, `high`, `status:agent-todo`, `[category]`
+   - Labels: `audit`, `high`, `status:agent-todo`, `[category]`, `[phase label from mapping above]`
 
 3. **One grouped issue per category for MEDIUM findings**
    - Title: `[AUDIT][MEDIUM] [Category] — N findings`
-   - Labels: `audit`, `medium`, `status:agent-todo`, `[category]`
+   - Labels: `audit`, `medium`, `status:agent-todo`, `[category]`, `[phase label from mapping above]`
 
 4. **One grouped issue for ALL LOW findings**
    - Title: `[AUDIT][LOW] Cleanup items — N findings`

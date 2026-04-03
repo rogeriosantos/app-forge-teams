@@ -11,7 +11,13 @@ You are the entry point of the App Forge workflow. Your job is to take a vague a
 
 ## What to do
 
-1. If the user provided an argument, use it as the idea. If not, ask: "What app do you want to build? Describe it in any way — even one sentence is enough."
+1. **Confirm the working directory.** Show the user the current directory path and ask them to confirm it is where they want to build the app:
+   > Working directory: `[pwd output]`
+   > This is where `forge-context.md` and all project files will be saved. Is this correct? (yes/no)
+   
+   If no, ask them to `cd` to the correct directory and re-run `/forge:idea`.
+
+2. If the user provided an argument, use it as the idea. If not, ask: "What app do you want to build? Describe it in any way — even one sentence is enough."
 
 2. Ask 4–6 focused clarifying questions. Cover:
    - **Core problem**: What pain does this solve? Who has the pain?

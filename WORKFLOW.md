@@ -74,6 +74,7 @@
  /forge:review           Any extra review pass
  /forge:audit            Any extra audit pass
  /forge:build            Phase dispatcher (shows what to run next)
+ /forge:reset            Reset phase to "ready" (optionally --hard to delete code)
 ```
 
 ---

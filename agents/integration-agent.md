@@ -1,9 +1,9 @@
 ---
 name: integration-agent
-description: Use this agent to wire the Next.js frontend to the FastAPI backend — aligning API calls, base URLs, CORS, and response shapes. Runs in Phase 3. Examples:
+description: Use this agent to wire the Next.js frontend to the FastAPI backend — aligning API calls, base URLs, CORS, and response shapes. Runs in Phase 2 (final integration stage). Examples:
 
 <example>
-Context: forge:build Phase 3, frontend and backend are both built
+Context: forge:build-backend Phase 2 (integration stage), frontend and backend are both built
 user: "Wire the frontend to the backend"
 assistant: "Launching integration-agent to connect frontend API calls to backend endpoints."
 <commentary>

@@ -69,6 +69,9 @@ List ALL issues to be created, grouped by label:
 **phase:database** (PostgreSQL + Alembic)
 - [ ] [Issue title] — [1-line description]
 
+**phase:integration** (API wiring + CORS + env vars)
+- [ ] [Issue title] — [1-line description]
+
 **phase:architecture**
 - [ ] [Issue title] — [1-line description]
 

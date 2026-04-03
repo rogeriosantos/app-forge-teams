@@ -68,6 +68,8 @@ description: "Phase 1 frontend build for [app_name from forge-state.json]"
 
 ## Step 4 — Spawn build-team-lead
 
+Check the issue list from Step 2 for any auth-related issues (issues whose title contains "auth", "login", "register", "session", "JWT", "Clerk", "NextAuth"). If any exist, note them — pass them to build-team-lead with the instruction to implement auth issues FIRST, before any other frontend issues, since all authenticated pages depend on the auth scaffold being in place.
+
 Use the Agent tool:
 - `subagent_type`: `"app-forge-teams:build-team-lead"`
 - `team_name`: `"forge-frontend"`
@@ -76,13 +78,15 @@ Use the Agent tool:
   - Full list of frontend GitHub issues (number, title, body, labels)
   - Repo name (`owner/repo`)
   - Path to `forge-prd.md`
-  - Instruction: orchestrate the frontend build — spawn one `frontend-builder` per issue (max 4 parallel), spawn `code-reviewer` concurrently, run `test-runner` after all builders complete, then report back
+  - Phase label: `phase:frontend` (pass this to the code-reviewer for issue labeling)
+  - Sequencing note: if any issues are auth-related (auth scaffold, login, session setup), implement those FIRST before other features — other pages depend on auth being set up
+  - Instruction: orchestrate the frontend build — spawn one `frontend-builder` per issue (max 4 parallel), spawn `code-reviewer` concurrently with phase label `phase:frontend`, run `test-runner` after all builders complete, then report back
 
 ---
 
-## Step 5 — Wait for team completion
+## Step 5 — Wait for build-team-lead completion
 
-The build-team-lead will SendMessage back when Phase 1 is done with:
+The build-team-lead Agent tool call returns when Phase 1 is done. Capture the result — it contains:
 ```json
 {
   "phase_complete": true,
@@ -93,11 +97,13 @@ The build-team-lead will SendMessage back when Phase 1 is done with:
 }
 ```
 
+Store `review_issues_created` count and `regression_report` for the Step 7 report.
+
 ---
 
 ## Step 5.5 — Architecture review
 
-Spawn the arch-reviewer for a final structural pass on the built frontend:
+Spawn the arch-reviewer for a final structural pass on the built frontend. This is a separate Agent tool call that runs after build-team-lead completes:
 
 Use the Agent tool:
 - `subagent_type`: `"app-forge-teams:arch-reviewer"`
@@ -107,9 +113,9 @@ Use the Agent tool:
   Scope: frontend only (Next.js App Router structure, component boundaries, data flow, state management patterns).
   The code-reviewer has already reviewed line-level quality — focus on structural/architectural patterns.
   Create GitHub issues for any findings (labels: `type:review-finding`, `phase:frontend`, `status:agent-todo`).
-  Report back with `{"type": "arch_review_done", "issues_created": [...], "summary": "..."}` when complete.
+  **Do NOT SendMessage to build-team-lead** — it is no longer running. Simply complete your review and return.
 
-Wait for the `arch_review_done` message before proceeding.
+When the Agent tool returns, extract `issues_created` from the arch-reviewer's completion output for the Step 7 report.
 
 ---
 
@@ -123,7 +129,7 @@ Update `forge-state.json` → `"phase": "frontend-review"`.
 
 > **Frontend build complete.**
 >
-> Built [N] issues. Live code reviewer created [N] review findings. Arch reviewer created [N] architectural findings.
+> Built [N] issues. Code reviewer created [N] findings. Arch reviewer created [N] architectural findings.
 > Regression tests: [passed / N issues found — see findings above].
 >
 > Next steps:

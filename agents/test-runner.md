@@ -28,18 +28,29 @@ You are the regression test runner for the App Forge system. Your job is to veri
 # Backend (if present)
 if [ -d "backend" ]; then
   cd backend && uv run uvicorn app.main:app --reload --port 8000 > /tmp/backend.log 2>&1 &
-  sleep 5
 fi
 
 # Frontend
 cd frontend && npm run dev > /tmp/frontend.log 2>&1 &
-sleep 10
 ```
 
-Verify servers are up:
+Wait for readiness using polling — do NOT use a fixed sleep:
 ```bash
-curl -s http://localhost:8000/health 2>/dev/null || echo "backend not running"
-curl -s http://localhost:3000 2>/dev/null | head -5 || echo "frontend not running"
+# Wait for backend (up to 30s)
+if [ -d "backend" ]; then
+  for i in $(seq 1 30); do
+    curl -s http://localhost:8000/health > /dev/null 2>&1 && echo "backend ready" && break
+    sleep 1
+  done
+  curl -s http://localhost:8000/health > /dev/null 2>&1 || echo "WARNING: backend did not start within 30s"
+fi
+
+# Wait for frontend (up to 60s)
+for i in $(seq 1 60); do
+  curl -s http://localhost:3000 > /dev/null 2>&1 && echo "frontend ready" && break
+  sleep 1
+done
+curl -s http://localhost:3000 > /dev/null 2>&1 || { echo "CRITICAL: frontend did not start"; exit 1; }
 ```
 
 If the frontend fails to start (build error), immediately report it as a CRITICAL failure and stop.

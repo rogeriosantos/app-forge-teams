@@ -88,21 +88,25 @@ The build-team-lead will SendMessage back when done with:
 
 ## Step 5 — Final review team
 
-After Phase 2 build is done, spawn both reviewers **in parallel** (same message, two Agent tool calls):
+After Phase 2 build is done, spawn both reviewers **in parallel** (same message, two Agent tool calls). Each runs as a separate Agent tool call returning synchronously when complete — do NOT wait for SendMessage from them.
 
 **code-reviewer:**
 - `subagent_type`: `"app-forge-teams:code-reviewer"`
 - `team_name`: `"forge-backend"`
 - `name`: `"code-reviewer"`
-- Scope: backend + integration
+- `prompt`: Review all code in `./backend/` for quality, security, and correctness issues.
+  Phase label for issues: `phase:backend`.
+  **Do NOT SendMessage to build-team-lead** — it is no longer running. Simply complete and return.
 
 **arch-reviewer:**
 - `subagent_type`: `"app-forge-teams:arch-reviewer"`
 - `team_name`: `"forge-backend"`
 - `name`: `"arch-reviewer"`
-- Scope: backend + integration
+- `prompt`: Review the backend and integration code for architectural issues.
+  Scope: `./backend/` and `./frontend/lib/api/`.
+  **Do NOT SendMessage to build-team-lead** — it is no longer running. Simply complete and return.
 
-Wait for both to report back.
+Both Agent tool calls return when the reviewers complete. Capture `issues_created` counts from both for the Step 7 report.
 
 ---
 

@@ -64,8 +64,10 @@ For MED/LOW findings — create GitHub issues:
 gh issue create \
   --title "[HIGH/MED/LOW] [description]" \
   --body "## Finding\n\n[detail]\n\n## Location\n\n[file:line]\n\n## Why It Matters\n\n[impact]\n\n## Suggested Fix\n\n[approach]" \
-  --label "type:review-finding,status:needs-review,status:agent-todo,[phase label]"
+  --label "type:review-finding,status:needs-review,status:agent-todo,$PHASE_LABEL"
 ```
+
+Use the `$PHASE_LABEL` you were given in your prompt (e.g. `phase:frontend` or `phase:backend`). If not told, infer from the files you are reviewing: `frontend/` files → `phase:frontend`, `backend/` files → `phase:backend`.
 
 **Before creating any issue** — SendMessage to `arch-reviewer` (if running): "Covering: [title]. You?" — avoid duplicates.
 

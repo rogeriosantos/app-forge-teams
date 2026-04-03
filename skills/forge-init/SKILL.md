@@ -112,4 +112,4 @@ Tell the user:
 > - Integration: [N] issues
 > - Architecture/Security/Testing: [N] issues
 >
-> Run `/forge:build` to start building the frontend.
+> Run `/forge:build-frontend` to start Phase 1 (frontend build).
