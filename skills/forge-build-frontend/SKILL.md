@@ -1,6 +1,6 @@
 ---
 name: forge-build-frontend
-description: Build the Next.js frontend using a coordinated agent team. Spawns build-team-lead who orchestrates parallel frontend-builder agents plus a live code-reviewer. Only runs when forge-state.json phase is "ready". Sets phase to "frontend-review" when complete.
+description: Build the Next.js frontend using a coordinated agent team. Spawns build-team-lead who orchestrates parallel frontend-builder agents plus a live code-reviewer and a final arch-reviewer pass. Only runs when forge-state.json phase is "ready". Sets phase to "frontend-review" when complete.
 allowed-tools: Read, Write, Bash, Agent, TeamCreate, TaskCreate, TaskUpdate, TaskList, SendMessage
 ---
 
@@ -95,6 +95,24 @@ The build-team-lead will SendMessage back when Phase 1 is done with:
 
 ---
 
+## Step 5.5 — Architecture review
+
+Spawn the arch-reviewer for a final structural pass on the built frontend:
+
+Use the Agent tool:
+- `subagent_type`: `"app-forge-teams:arch-reviewer"`
+- `team_name`: `"forge-frontend"`
+- `name`: `"arch-reviewer"`
+- `prompt`: Review the frontend codebase in `./frontend/` for architectural issues.
+  Scope: frontend only (Next.js App Router structure, component boundaries, data flow, state management patterns).
+  The code-reviewer has already reviewed line-level quality — focus on structural/architectural patterns.
+  Create GitHub issues for any findings (labels: `type:review-finding`, `phase:frontend`, `status:agent-todo`).
+  Report back with `{"type": "arch_review_done", "issues_created": [...], "summary": "..."}` when complete.
+
+Wait for the `arch_review_done` message before proceeding.
+
+---
+
 ## Step 6 — Update state
 
 Update `forge-state.json` → `"phase": "frontend-review"`.
@@ -105,7 +123,7 @@ Update `forge-state.json` → `"phase": "frontend-review"`.
 
 > **Frontend build complete.**
 >
-> Built [N] issues. Live code reviewer created [N] review findings.
+> Built [N] issues. Live code reviewer created [N] review findings. Arch reviewer created [N] architectural findings.
 > Regression tests: [passed / N issues found — see findings above].
 >
 > Next steps:

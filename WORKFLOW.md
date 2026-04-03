@@ -22,6 +22,7 @@
                            • build-team-lead (orchestrator)
                            • frontend-builder × N (parallel, max 4)
                            • code-reviewer (live, concurrent)
+                           • arch-reviewer (final pass, after build)
                            • test-runner (regression, after build)
                          → phase: frontend-review
 
