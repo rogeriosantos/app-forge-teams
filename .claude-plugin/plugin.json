@@ -1,0 +1,9 @@
+{
+  "name": "app-forge-teams",
+  "version": "0.1.0",
+  "description": "Application factory v2: same workflow as app-forge but orchestrates a real agent team (TeamCreate, SendMessage, TaskList) for the build phase. Agents communicate, coordinate, and self-correct before creating issues.",
+  "author": {
+    "name": "md9488"
+  },
+  "keywords": ["agent-teams", "app-factory", "full-stack", "github", "workflow", "v2"]
+}
