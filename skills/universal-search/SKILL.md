@@ -71,95 +71,20 @@ This is your transform list.
 
 ## Phase 2 — Create the shared search utility
 
-### 2a. Check for an existing normalize function
+### 2a. Create `lib/search.ts` (shared search utilities)
 
-```bash
-grep -rn "export function normalize\|export const normalize" \
-  --include="*.ts" . | grep -v node_modules
-```
+Copy the canonical search template from the plugin's shared templates directory:
+`skills/shared/templates/search.ts` → project's `lib/search.ts`
 
-If `lib/combobox-search.ts` or `lib/smart-table-utils.ts` already exports a
-`normalize` function with the NFD implementation (strip `/[\u0300-\u036f]/g`,
-lowercase, trim), note it — but still create `lib/search.ts` as the canonical
-location. After the transform, update the other file to import `normalize` from
-`./search` to eliminate duplication.
+If `lib/search.ts` already exists and has `normalize` + `matchesSearch` with the NFD implementation, `+` operator, and auto-field-discovery, skip creation and go to Phase 3.
 
-### 2b. Create `lib/search.ts`
-
-If a `lib/search.ts` already exists, verify it implements the spec below
-(normalize, + operator, auto-field-discovery). If it matches, skip creation
-and go to Phase 3. If it differs, upgrade it in place.
-
+If `lib/combobox-search.ts` or `lib/smart-table-utils.ts` already export their own `normalize`, update them to import from `lib/search.ts` instead:
 ```typescript
-/**
- * Universal search utilities.
- *
- * All search bars in the app import matchesSearch() from here so that
- * search behavior is consistent across every list and table:
- *   - Diacritics-insensitive: "jose" matches "José"
- *   - Case-insensitive partial match: "micro" matches "Micrometer"
- *   - Multi-term AND via "+": "jose+lisboa" must match both terms
- *   - Auto-discovers all string/number fields when none are specified
- */
+// In lib/combobox-search.ts — replace local normalize with import
+export { normalize, matchesComboboxSearch } from './search';
 
-/**
- * Strips diacritics and lowercases a string.
- *   "José"    → "jose"
- *   "Açúcar"  → "acucar"
- *   "Máquina" → "maquina"
- */
-export function normalize(str: string): string {
-  return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-}
-
-/**
- * Tests whether an item matches a search query.
- *
- * Rules:
- *  - Empty / whitespace-only query → always matches (show everything)
- *  - "+" splits the query into independent AND-terms (all must match)
- *  - Each term is matched diacritics-insensitively as a substring
- *  - ALL terms must match (each against ANY field), not each against its own field
- *  - If `fields` is omitted, ALL string and number properties are searched
- *  - "+" is reserved — it cannot be searched as a literal character
- *
- * @param item    The data object to test (a row, a list item, etc.)
- * @param query   The raw string typed by the user
- * @param fields  Which keys of `item` to search. Omit to auto-search all
- *                string and number fields.
- *
- * @example
- * matchesSearch({ name: "José Silva", city: "Lisboa" }, "jose")           // true
- * matchesSearch({ name: "José Silva", city: "Lisboa" }, "jose+lisboa")    // true
- * matchesSearch({ name: "José Silva", city: "Porto"  }, "jose+lisboa")    // false
- * matchesSearch({ name: "Micrometer", code: "MICRO-500" }, "micro")       // true
- * matchesSearch({ name: "Widget", price: 75 }, "micro+75")                // false (name no match)
- */
-export function matchesSearch<T extends Record<string, unknown>>(
-  item: T,
-  query: string,
-  fields?: (keyof T)[],
-): boolean {
-  const trimmed = query.trim();
-  if (!trimmed) return true;
-
-  const terms = trimmed.split('+').map(normalize).filter(Boolean);
-
-  const keys: (keyof T)[] =
-    fields ??
-    (Object.keys(item) as (keyof T)[]).filter(
-      (k) => typeof item[k] === 'string' || typeof item[k] === 'number',
-    );
-
-  const haystack = keys.map((k) => normalize(String(item[k] ?? '')));
-
-  // Every term must appear in at least one field
-  return terms.every((term) => haystack.some((field) => field.includes(term)));
-}
+// In lib/smart-table-utils.ts — replace local normalize with import
+export { normalize, rowMatchesSearch } from './search';
 ```
 
 ---

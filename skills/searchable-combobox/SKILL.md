@@ -70,56 +70,20 @@ This is your transform list.
 
 ## Phase 2 — Create the reusable infrastructure
 
-### 2a. Create `lib/combobox-search.ts`
+### 2a. Create `lib/search.ts` (shared search utilities)
 
-Create this file if it doesn't exist. If `lib/search.ts` already has a `normalize`
-function that matches the spec below, import from there instead of duplicating.
+Copy the canonical search template from the plugin's shared templates directory:
+`skills/shared/templates/search.ts` → project's `lib/search.ts`
+
+If `lib/search.ts` already exists and has a `normalize` function with the NFD implementation, skip this step.
+
+The file provides: `normalize()`, `matchesSearch()`, `matchesComboboxSearch()`, `rowMatchesSearch()`.
+
+Then create `lib/combobox-search.ts` as a thin re-export for backwards compatibility:
 
 ```typescript
-// lib/combobox-search.ts
-
-/**
- * Strips diacritics and lowercases — "José" → "jose", "Açúcar" → "acucar"
- */
-export function normalize(str: string): string {
-  return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-}
-
-/**
- * Match an option object against a query string.
- *
- * Rules:
- *  - `+` splits the query into independent AND-terms (all must match)
- *  - Each term is matched diacritics-insensitively, case-insensitively, as a substring
- *  - Empty / whitespace-only query → always matches (show all options)
- *  - `+` is a reserved operator; it cannot be searched as a literal character
- *
- * @param option        The option object (e.g. { value: "PT", label: "Portugal" })
- * @param query         The raw string typed by the user
- * @param searchFields  Keys of `option` to search. Default: ["label"]
- *
- * @example
- * matchesComboboxSearch({ value: "PT", label: "Portugal" }, "port")       // true
- * matchesComboboxSearch({ value: "PT", label: "Portugal" }, "port+PT")    // true (label + value)
- * matchesComboboxSearch({ value: "PT", label: "Portucal" }, "jose")       // false
- */
-export function matchesComboboxSearch<T extends Record<string, unknown>>(
-  option: T,
-  query: string,
-  searchFields: (keyof T)[] = ['label' as keyof T],
-): boolean {
-  const trimmed = query.trim();
-  if (!trimmed) return true;
-
-  const terms = trimmed.split('+').map(normalize).filter(Boolean);
-  const fieldValues = searchFields.map((f) => normalize(String(option[f] ?? '')));
-
-  return terms.every((term) => fieldValues.some((field) => field.includes(term)));
-}
+// lib/combobox-search.ts — re-exports from canonical search.ts
+export { normalize, matchesComboboxSearch } from './search';
 ```
 
 ### 2b. Create `components/ui/searchable-combobox.tsx`
@@ -260,18 +224,7 @@ export function SearchableCombobox({
 
 ### 2c. Create `lib/use-debounce.ts` (if it doesn't already exist)
 
-```typescript
-import { useState, useEffect } from 'react';
-
-export function useDebounce<T>(value: T, delay: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(id);
-  }, [value, delay]);
-  return debounced;
-}
-```
+Copy the canonical template from `skills/shared/templates/use-debounce.ts` → project's `lib/use-debounce.ts`.
 
 ### 2d. Install dependencies (if missing)
 
