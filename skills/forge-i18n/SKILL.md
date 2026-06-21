@@ -77,7 +77,7 @@ grep -rEn '\b(setError|setMessage|setNotification)\(\s*["`][^"`]+' \
 
 ### 1d. Existing t() usage (already-i18n'd parts to skip)
 ```bash
-grep -rEn 't\([\'"][a-z][a-z._]+[\'"]' \
+grep -rEn "t\\(['\"][a-z][a-z._]+['\"]" \
   --include="*.tsx" --include="*.ts" \
   src/ app/ components/ 2>/dev/null \
   > .forge-i18n/existing-t-calls.txt

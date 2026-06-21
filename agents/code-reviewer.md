@@ -90,7 +90,7 @@ For MED/LOW findings — create a GitHub issue AND log:
 gh issue create \
   --title "[CODE][MED/LOW] [description]" \
   --body "## Finding\n\n[detail]\n\n## Location\n\n[file:line]\n\n## Why It Matters\n\n[impact]\n\n## Suggested Fix\n\n[approach]" \
-  --label "type:review-finding,status:needs-review,status:agent-todo,$PHASE_LABEL"
+  --label "type:review-finding,status:agent-todo,$PHASE_LABEL"
 ```
 
 ```bash

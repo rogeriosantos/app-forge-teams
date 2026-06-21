@@ -1,13 +1,13 @@
 ---
 name: forge-deploy
 description: Deploy the application to production. Deploys the Next.js frontend to Vercel and the FastAPI backend to Railway or Render, sets up production environment variables, runs a post-deploy smoke test with Playwright, and updates forge-state.json to phase "deployed".
-allowed-tools: Read, Write, Bash, mcp__playwright__browser_navigate, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_console_messages, mcp__playwright__browser_wait_for
+allowed-tools: Read, Write, Bash
 ---
 
 # forge:deploy — Deploy to Production
 
 Read `forge-state.json`. If phase is not `integration-review` or `deployed`, tell the user:
-> Run `/forge:build` and `/forge:approve` first to complete both build phases before deploying.
+> Run `/forge:build-frontend`, `/forge:approve`, and `/forge:build-backend` first to complete both build phases before deploying.
 
 ---
 
@@ -81,15 +81,29 @@ Wait 30 seconds for deployments to stabilize:
 sleep 30
 ```
 
-**Frontend smoke test:**
-1. `mcp__playwright__browser_navigate` → the Vercel deployment URL
-2. `mcp__playwright__browser_wait_for` → wait for page to fully load
-3. `mcp__playwright__browser_take_screenshot` — capture initial state
-4. `mcp__playwright__browser_console_messages` — check for errors
+**Frontend smoke test (Playwright CLI, not MCP):** write a one-off Node script and run it:
+```bash
+cd frontend && npm install --no-save -D playwright >/dev/null 2>&1 && npx playwright install chromium >/dev/null 2>&1
+cat > /tmp/forge-smoke.mjs <<'EOF'
+import { chromium } from 'playwright';
+const url = process.argv[2];
+const errors = [];
+const b = await chromium.launch();
+const p = await b.newPage();
+p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+await p.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+await p.screenshot({ path: '/tmp/forge-deploy-smoke.png', fullPage: true });
+await b.close();
+console.log(JSON.stringify({ errors: errors.filter(e => !e.includes('favicon')) }));
+EOF
+node /tmp/forge-smoke.mjs "[vercel deployment URL]"
+```
+Then use the **Read tool** on `/tmp/forge-deploy-smoke.png` to confirm the page rendered, and inspect the printed `errors` array.
 
 **Backend health check:**
 ```bash
-curl -s --max-time 10 "[backend-url]/health" | python3 -m json.tool 2>/dev/null || echo "health check failed"
+HEALTH=$(curl -s --max-time 10 "[backend-url]/health")
+if [ -n "$HEALTH" ]; then echo "$HEALTH" | (jq . 2>/dev/null || cat); else echo "health check failed"; fi
 ```
 
 If the frontend has console errors or the backend health check fails:

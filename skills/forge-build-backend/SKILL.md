@@ -29,15 +29,15 @@ Use the Read tool to read `forge-state.json` and extract the `repo` field into `
 ```bash
 # Database issues
 gh issue list --label "phase:database" --label "status:agent-todo" \
-  --state open --json number,title,body,labels --limit 20 -R "$REPO"
+  --state open --json number,title,body,labels --limit 200 -R "$REPO"
 
 # Backend issues
 gh issue list --label "phase:backend" --label "status:agent-todo" \
-  --state open --json number,title,body,labels --limit 30 -R "$REPO"
+  --state open --json number,title,body,labels --limit 200 -R "$REPO"
 
 # Integration issues
 gh issue list --label "phase:integration" --label "status:agent-todo" \
-  --state open --json number,title,body,labels --limit 10 -R "$REPO"
+  --state open --json number,title,body,labels --limit 200 -R "$REPO"
 ```
 
 ---

@@ -24,6 +24,7 @@ Extract from `forge-state.json`:
 ## Step 2 — Fetch issue counts from GitHub
 
 ```bash
+REPO=$(jq -r '.repo' forge-state.json)
 echo "=== Open issues by status ==="
 gh issue list --state open --json labels --jq '.[].labels[].name' -R "$REPO" 2>/dev/null \
   | sort | uniq -c | sort -rn

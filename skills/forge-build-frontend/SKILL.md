@@ -40,7 +40,7 @@ cd frontend && npx shadcn@latest init -d
 
 ## Step 1.5 — Foundation phase (BLOCKING — MANDATORY)
 
-**Resume check (interrupted builds):** if `frontend/DESIGN.md` already exists, the foundation completed on a prior run — skip this step and go straight to Step 2. The per-issue `status:agent-todo` labels are the resume cursor: issues already built were relabeled off `status:agent-todo`, so Step 2's query won't re-dispatch them. This makes re-running `/forge:build-frontend` after an interruption safe — it resumes from where it stopped instead of rebuilding everything.
+**Resume check (interrupted builds):** if `frontend/DESIGN.md` already exists, the foundation completed on a prior run — skip this step and go straight to Step 2. Re-dispatch is naturally avoided because Step 2 queries `--state open`: any issue a builder already finished was **closed**, so it drops out of the query. (Note: builders close issues but do not remove the `status:agent-todo` label — it is the closure, not a relabel, that excludes them.) This makes re-running `/forge:build-frontend` after an interruption safe: it resumes from the still-open issues instead of rebuilding everything.
 
 Otherwise, spawn the `frontend-foundation-builder` agent FIRST, BEFORE any feature builders. This agent picks the brand palette, applies it to `globals.css`, builds the app shell, configures locale resolution (NEVER in URL — see user's `~/.claude/rules/i18n.md`), and lays down a visual baseline smoke test.
 

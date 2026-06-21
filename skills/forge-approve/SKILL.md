@@ -18,7 +18,8 @@ Read `forge-state.json`. If `phase` is not `frontend-review`, tell the user:
 
 2. If there are open review-finding issues from Phase 1 (label `type:review-finding`), show a summary:
 ```bash
-gh issue list --label "type:review-finding" --state open --json number,title
+REPO=$(jq -r '.repo' forge-state.json)
+gh issue list --label "type:review-finding" --state open --json number,title -R "$REPO"
 ```
 Ask: "There are [N] open review findings from Phase 1. Proceed to backend/DB build anyway? These will remain as issues to fix later. (yes/no)"
 

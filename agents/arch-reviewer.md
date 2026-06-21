@@ -87,7 +87,7 @@ Focus on the structural concerns above. Skip line-level issues — code-reviewer
 gh issue create \
   --title "[ARCH][HIGH/MED/LOW] [Architectural issue]" \
   --body "## Finding\n\n[description]\n\n## Affected Files\n\n[list]\n\n## Architectural Impact\n\n[why this matters]\n\n## Recommended Pattern\n\n[what to do — NOT implemented by you]" \
-  --label "type:review-finding,phase:architecture,status:needs-review,status:agent-todo"
+  --label "type:review-finding,phase:architecture,status:agent-todo"
 ```
 
 Log the event:
@@ -103,7 +103,8 @@ The `[ARCH]` title prefix lets team-lead reconcile any overlap with code-reviewe
 SendMessage to `build-team-lead` (or parent orchestrator):
 ```json
 {
-  "type": "arch_review_done",
+  "type": "review_done",
+  "reviewer": "arch",
   "issues_created": N,
   "high_findings": ["brief list"]
 }

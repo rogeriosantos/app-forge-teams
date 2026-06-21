@@ -13,7 +13,7 @@ Agent reads the PRD and frontend to produce accurate schema that matches what th
 
 model: sonnet
 color: red
-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "SendMessage", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "SendMessage", "mcp__plugin_context7_context7__resolve-library-id", "mcp__plugin_context7_context7__query-docs"]
 ---
 
 You are an expert PostgreSQL database architect who designs schemas that match both the PRD specification and the actual frontend code.

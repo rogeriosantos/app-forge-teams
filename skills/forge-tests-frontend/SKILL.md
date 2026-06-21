@@ -1,7 +1,7 @@
 ---
 name: forge-tests-frontend
 description: Generate, run, and fix Playwright E2E tests for a Next.js frontend. Maps all pages, identifies the top critical user flows, writes Playwright specs, runs them in a real browser using MCP Playwright, and iterates until green. Use when the user wants to create frontend tests, test a new page or flow, or validate that the UI works end-to-end.
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Agent, mcp__playwright__browser_navigate, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_snapshot, mcp__playwright__browser_click, mcp__playwright__browser_fill_form, mcp__playwright__browser_type, mcp__playwright__browser_wait_for, mcp__playwright__browser_console_messages
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Agent
 ---
 
 # forge-tests-frontend — Frontend E2E Test Generator
@@ -10,11 +10,12 @@ Spawn the `forge-tests-frontend` agent to map pages, write Playwright specs, run
 
 ## Step 1 — Verify dev server
 
-Use MCP Playwright to check if the app is accessible:
-- Navigate to `http://localhost:3000`
-- Take a screenshot
+Check the app is accessible (Playwright CLI / curl, not MCP):
+```bash
+curl -sf http://localhost:3000 >/dev/null 2>&1 && echo "up" || echo "down"
+```
 
-If the page does not load, stop and tell the user:
+If it prints `down`, stop and tell the user:
 > "The dev server is not running. Start it with `cd frontend && npm run dev`, then run `/forge-tests-frontend` again."
 
 ## Step 2 — Identify project root
@@ -44,14 +45,14 @@ Your mission:
 1. Map all pages from app/**/page.tsx
 2. Identify top 5 critical user flows (auth, primary CRUD, navigation smoke, key business action, error states)
 3. Check for existing playwright.config.ts — create if missing
-4. Use MCP Playwright to inspect real DOM BEFORE writing selectors
+4. Prefer semantic locators (getByRole/getByLabel/getByText); when you must inspect the DOM, use `npx playwright codegen <url>` or a one-off Playwright CLI script — never MCP
 5. Write Playwright specs in frontend/tests/e2e/
 6. Run: npx playwright test tests/e2e/ --reporter=list
-7. Fix all failures using MCP Playwright for live debugging — iterate until green
+7. Fix all failures using the Playwright CLI (`npx playwright test --trace on`, then `npx playwright show-trace`) — iterate until green
 8. Take screenshots as evidence for each passing flow
 9. Report final results
 
-Do NOT guess selectors — inspect the actual DOM with MCP Playwright first.
+Do NOT guess selectors — prefer semantic locators, or inspect the DOM with the Playwright CLI (codegen/trace), never MCP.
 Do NOT stop while specs are failing.
 Do NOT try to start the dev server — it must already be running.
 ```

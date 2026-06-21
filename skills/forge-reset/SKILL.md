@@ -77,6 +77,7 @@ Ask:
 
 If yes:
 ```bash
+REPO=$(jq -r '.repo' forge-state.json)
 gh issue list --state closed --json number --jq '.[].number' -R "$REPO" | \
   xargs -I{} gh issue reopen {} -R "$REPO" 2>/dev/null
 echo "All closed issues reopened."
@@ -92,8 +93,7 @@ Update `forge-state.json`:
   "repo": "[keep existing]",
   "app_name": "[keep existing]",
   "phase": "ready",
-  "issues_created": "[keep existing]",
-  "milestones": "[keep existing]"
+  "issues_created": "[keep existing]"
 }
 ```
 

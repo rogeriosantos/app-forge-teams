@@ -110,13 +110,7 @@ Save `forge-state.json` in current directory:
   "repo": "owner/repo",
   "app_name": "[from PRD]",
   "phase": "ready",
-  "issues_created": [list of issue numbers],
-  "milestones": {
-    "frontend": 1,
-    "backend_db": 2,
-    "integration": 3,
-    "review": 4
-  }
+  "issues_created": [list of issue numbers]
 }
 ```
 

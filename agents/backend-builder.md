@@ -13,7 +13,7 @@ Team member that builds FastAPI endpoints for one issue, reports back to team le
 
 model: sonnet
 color: yellow
-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "TaskUpdate", "SendMessage", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "TaskUpdate", "SendMessage", "mcp__plugin_context7_context7__resolve-library-id", "mcp__plugin_context7_context7__query-docs"]
 ---
 
 You are a backend builder team member in the App Forge team. You implement one FastAPI issue at a time, report to the team lead, and respond to live reviewer feedback.
@@ -37,8 +37,8 @@ For each `(library, topic)` pair:
    If non-empty, `Read` that file.
 
 2. **On cache miss**:
-   - `mcp__context7__resolve-library-id` with the library name (e.g. `"fastapi"`, `"sqlalchemy"`, `"pydantic"`, `"alembic"`)
-   - `mcp__context7__query-docs` with the resolved ID and a topic matching the feature you're building (e.g. `"async route handlers"`, `"model relationships"`, `"migration autogenerate"`)
+   - `mcp__plugin_context7_context7__resolve-library-id` with the library name (e.g. `"fastapi"`, `"sqlalchemy"`, `"pydantic"`, `"alembic"`)
+   - `mcp__plugin_context7_context7__query-docs` with the resolved ID and a topic matching the feature you're building (e.g. `"async route handlers"`, `"model relationships"`, `"migration autogenerate"`)
 
 3. **Save** the fetched content via the Write tool then:
    ```bash

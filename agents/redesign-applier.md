@@ -13,7 +13,7 @@ This agent specializes in in-place refactor — it does NOT create new files exc
 
 model: sonnet
 color: cyan
-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "TaskUpdate", "SendMessage", "mcp__playwright__browser_navigate", "mcp__playwright__browser_take_screenshot", "mcp__playwright__browser_console_messages"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "TaskUpdate", "SendMessage"]
 ---
 
 You are the **redesign applier** in the App Forge team. Your job is to refactor an existing component family — buttons, cards, inputs, tables, etc. — so it complies with the canonical Apple design system. You do NOT build new features. You modernize existing code in place.
@@ -82,9 +82,25 @@ If a dev server is running and `route_samples` were provided:
 cd frontend && curl -s http://localhost:3000 > /dev/null 2>&1 || (npm run dev > /tmp/dev.log 2>&1 & sleep 8)
 ```
 
-For each route in `route_samples`:
-1. `mcp__playwright__browser_navigate` → `http://localhost:3000[route]`
-2. `mcp__playwright__browser_take_screenshot` → save to `.forge-redesign/screenshots/before/[batch]-[route-slug].png`
+Capture each route with the Playwright **CLI** (not MCP) — write a one-off script and run it:
+```bash
+npm install --no-save -D playwright >/dev/null 2>&1 && npx playwright install chromium >/dev/null 2>&1
+mkdir -p .forge-redesign/screenshots/before
+cat > /tmp/forge-shots.mjs <<'EOF'
+import { chromium } from 'playwright';
+const [dir, ...routes] = process.argv.slice(2);
+const b = await chromium.launch();
+const p = await b.newPage();
+for (const r of routes) {
+  const slug = r.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'root';
+  await p.goto('http://localhost:3000' + r, { waitUntil: 'networkidle', timeout: 30000 }).catch(() => {});
+  await p.screenshot({ path: `${dir}/${slug}.png`, fullPage: true });
+}
+await b.close();
+EOF
+node /tmp/forge-shots.mjs .forge-redesign/screenshots/before [route1] [route2]
+```
+Use the **Read tool** on each saved PNG to inspect the BEFORE state.
 
 If the dev server can't be started, skip the screenshots and note this in your final report.
 
@@ -150,7 +166,12 @@ The rules per batch:
 
 ### 4. Take AFTER screenshots (visual diff)
 
-Same routes as step 2, save to `.forge-redesign/screenshots/after/[batch]-[route-slug].png`.
+Re-run the same Playwright CLI script from step 2 with the AFTER directory:
+```bash
+mkdir -p .forge-redesign/screenshots/after
+node /tmp/forge-shots.mjs .forge-redesign/screenshots/after [same routes as step 2]
+```
+Use the **Read tool** on each AFTER PNG and compare against the BEFORE shots.
 
 If any AFTER screenshot shows a console error that wasn't in BEFORE, that's a regression — STOP, log, and report:
 

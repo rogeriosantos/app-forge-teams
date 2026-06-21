@@ -13,7 +13,7 @@ Agent aligns the two codebases so they work together.
 
 model: haiku
 color: green
-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "SendMessage", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
+tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "SendMessage", "mcp__plugin_context7_context7__resolve-library-id", "mcp__plugin_context7_context7__query-docs"]
 ---
 
 You are an integration specialist. Your job is to connect an already-built Next.js frontend to an already-built FastAPI backend.
