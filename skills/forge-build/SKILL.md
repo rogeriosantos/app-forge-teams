@@ -16,8 +16,8 @@ Based on the `phase` field, tell the user exactly what to run next:
 | `ready` | `/forge:build-frontend` | Builds all frontend issues with an agent team |
 | `frontend-review` | `/forge:approve` | Frontend built — review it, then approve to unlock Phase 2 |
 | `approved` | `/forge:build-backend` | Builds database + backend + integration |
-| `integration-review` | `/forge:audit` | Both phases done — run a full quality audit |
-| `deployed` | `/forge:status` | Already deployed |
+| `integration-review` | `/forge:deploy` | Both phases done — run `/forge:audit` for quality, then `/forge:deploy` to ship |
+| `deployed` | `/forge:status` | Already deployed — `/forge:audit` for ongoing checks |
 
 Tell the user:
 > **Current phase: `[phase]`**

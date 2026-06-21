@@ -327,8 +327,8 @@ Mark task "Write PRD" as completed.
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-prd task_done \
-  artifact=forge-prd.md domain=$DOMAIN issues_planned=$ISSUES_PLANNED \
-  validation_critical=$CRITICAL_FOUND validation_high=$HIGH_FOUND
+  artifact=forge-prd.md domain=[domain] issues_planned=[count] \
+  validation_critical=[count] validation_high=[count]
 ```
 
 Summarize:

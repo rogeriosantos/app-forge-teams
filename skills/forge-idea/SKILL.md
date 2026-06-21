@@ -147,7 +147,7 @@ If the user approves, save it.
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-idea task_done \
-  artifact=forge-context.md app=$APP_NAME
+  artifact=forge-context.md app=[app name]
 ```
 
 Tell the user:

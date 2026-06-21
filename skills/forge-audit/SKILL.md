@@ -58,7 +58,6 @@ CACHE_DIR="[project-root]/.forge-cache"
 REBUILD=1
 
 if [ -f "$CACHE_DIR/index.json" ]; then
-  CACHE_MTIME=$(stat -f %m "$CACHE_DIR/index.json" 2>/dev/null || stat -c %Y "$CACHE_DIR/index.json" 2>/dev/null)
   NEWEST_SRC=$(find . -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.py" -o -name "*.go" -o -name "*.sql" -o -name "*.css" \) \
     -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/dist/*" -not -path "*/build/*" -not -path "*/__pycache__/*" \
     -newer "$CACHE_DIR/index.json" 2>/dev/null | head -1)
@@ -418,9 +417,9 @@ Append a single audit-run summary to the ledger:
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-audit audit_run \
-  agents=$NUM_AGENTS_SPAWNED total=$TOTAL_FINDINGS \
-  critical=$CRITICAL_COUNT high=$HIGH_COUNT medium=$MEDIUM_COUNT low=$LOW_COUNT \
-  cache=$CACHE_STATUS  # "fresh" or "rebuilt"
+  agents=[count] total=[count] \
+  critical=[count] high=[count] medium=[count] low=[count] \
+  cache=[fresh|rebuilt]
 ```
 
 Tell the user:

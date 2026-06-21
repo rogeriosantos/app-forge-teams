@@ -178,6 +178,12 @@ Check `TaskList` regularly. When a builder sends a completion message:
 - If more issues remain: assign to an idle builder via SendMessage
 - If all tasks in the current batch complete: proceed to the next sequencing step
 
+When a builder sends `task_failed`: `TaskUpdate: status="failed"`, then mark the GitHub issue blocked so `/forge:status` reflects it and it leaves the agent-todo queue:
+```bash
+gh issue edit [N] --add-label "status:blocked" --remove-label "status:agent-todo" -R "[owner/repo]" 2>/dev/null
+```
+Continue with the remaining issues — do not retry automatically.
+
 ---
 
 ## 6. Run regression tests

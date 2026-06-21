@@ -8,6 +8,12 @@ allowed-tools: Read, Write, Bash, Agent, TeamCreate, TaskCreate, TaskUpdate, Tas
 
 Read `forge-state.json` using the Read tool. If it does not exist, tell the user to run `/forge:init` first.
 
+**Preflight — verify required CLI tools:**
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/check-prerequisites.sh forge-build-backend
+```
+If this prints `RESULT: FAIL` (e.g. `uv` or `python3` not installed), tell the user which tool is missing and stop.
+
 If `phase` is not `"approved"`:
 
 | Phase | Message |
@@ -117,7 +123,7 @@ Update `forge-state.json` → `"phase": "integration-review"`.
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-build-backend phase_change \
-  from=approved to=integration-review issues=$ISSUES_BUILT
+  from=approved to=integration-review issues=[count of issues built]
 ```
 
 ---

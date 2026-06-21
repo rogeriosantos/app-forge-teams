@@ -82,6 +82,10 @@ When a builder sends `task_done`:
 
 When a builder sends `task_failed`:
 - `TaskUpdate: status="failed"`
+- Mark the GitHub issue blocked so `/forge:status` reflects it and it leaves the agent-todo queue:
+  ```bash
+  gh issue edit [N] --add-label "status:blocked" --remove-label "status:agent-todo" -R "[owner/repo]" 2>/dev/null
+  ```
 - Record the failure — do not retry automatically
 - Continue with remaining issues
 

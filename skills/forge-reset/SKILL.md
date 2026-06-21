@@ -77,7 +77,7 @@ Ask:
 
 If yes:
 ```bash
-REPO=$(jq -r '.repo' forge-state.json)
+REPO=$(jq -r '.repo' forge-state.json 2>/dev/null || sed -n 's/.*"repo"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' forge-state.json | head -1)
 gh issue list --state closed --json number --jq '.[].number' -R "$REPO" | \
   xargs -I{} gh issue reopen {} -R "$REPO" 2>/dev/null
 echo "All closed issues reopened."
@@ -113,7 +113,7 @@ Otherwise (soft reset), preserve the audit trail by archiving the history file:
 Log the reset itself to a fresh ledger:
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-reset phase_change \
-  from=$PREVIOUS_PHASE to=ready hard=$IS_HARD
+  from=[previous phase] to=ready hard=[true|false]
 ```
 
 ---

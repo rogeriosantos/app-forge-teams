@@ -24,7 +24,7 @@ Extract from `forge-state.json`:
 ## Step 2 — Fetch issue counts from GitHub
 
 ```bash
-REPO=$(jq -r '.repo' forge-state.json)
+REPO=$(jq -r '.repo' forge-state.json 2>/dev/null || sed -n 's/.*"repo"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' forge-state.json | head -1)
 echo "=== Open issues by status ==="
 gh issue list --state open --json labels --jq '.[].labels[].name' -R "$REPO" 2>/dev/null \
   | sort | uniq -c | sort -rn
@@ -75,7 +75,7 @@ Based on the `phase` field, recommend:
 | `ready` | Run `/forge:build-frontend` to start Phase 1 (frontend) |
 | `frontend-review` | Review the frontend in `./frontend`, then run `/forge:approve` or `/forge:implement` for open findings |
 | `approved` | Run `/forge:build-backend` to start Phase 2 (backend + DB) |
-| `integration-review` | Run `/forge:review` or `/forge:audit` for a final quality pass |
+| `integration-review` | Run `/forge:audit` for a final quality pass, then `/forge:deploy` to ship |
 | `deployed` | App is live. Run `/forge:audit` for ongoing quality checks |
 
 ## Step 5 — Report

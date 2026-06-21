@@ -8,6 +8,12 @@ allowed-tools: Read, Write, Bash
 
 Read `forge-prd.md` from the current directory. If it does not exist, tell the user to run `/forge:prd` first.
 
+**Preflight — verify required CLI tools:**
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/check-prerequisites.sh forge-init
+```
+If this prints `RESULT: FAIL` (e.g. `gh` not installed), tell the user exactly which tool is missing and how to install it, then stop.
+
 ## Step 1 — Create the GitHub repository
 
 Extract the app name from the "Product Overview" section of `forge-prd.md`. Convert it to a slug (lowercase, hyphens, no spaces or special chars) to use as the repo name.
@@ -118,7 +124,7 @@ Save `forge-state.json` in current directory:
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-init phase_change \
-  from=none to=ready issues=$ISSUES_CREATED repo=$REPO
+  from=none to=ready issues=[count] repo=[owner/repo]
 ```
 
 Tell the user:

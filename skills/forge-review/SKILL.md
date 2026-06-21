@@ -2,7 +2,7 @@
 name: forge-review
 description: Run a coordinated review TEAM — code-reviewer and arch-reviewer run in parallel, communicate findings to each other to avoid duplicate issues, then report. All findings become GitHub issues.
 argument-hint: "[scope: frontend | backend | all (default: all)]"
-allowed-tools: Read, Bash, Agent, TeamCreate, TaskCreate, SendMessage
+allowed-tools: Read, Bash, Agent, TeamCreate
 ---
 
 # forge:review — Coordinated Review Team (v2)

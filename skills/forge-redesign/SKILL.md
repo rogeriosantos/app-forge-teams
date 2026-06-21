@@ -17,9 +17,10 @@ This is a **redesign**, not a feature build. You preserve functionality. You cha
 
 ## Phase 0 — Detect environment
 
+The optional path argument is supplied by the user (it is NOT a shell `$1`). Use it if given, otherwise the current directory; substitute the resolved absolute path for `[TARGET]` below.
+
 ```bash
-TARGET="${1:-$(pwd)}"
-cd "$TARGET"
+cd "[TARGET]"   # the app directory: the path argument, or the current directory
 ```
 
 Determine:
@@ -330,7 +331,7 @@ Agent:
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-redesign task_done \
-  palette=$PALETTE batches_applied=$N regressions=$REGRESSIONS_FOUND
+  palette=[palette name] batches_applied=[count] regressions=[count]
 ```
 
 Tell the user:
@@ -374,8 +375,8 @@ Next steps:
 
 - App needs new features → use `/forge:build-frontend` instead
 - App needs functional bugs fixed → use `/forge:audit` then `/forge:implement`
-- App needs the table/search standard applied (not full visual redesign) → use `/forge:smart-table` or `/forge:universal-search`
-- App is React but not Next.js → not supported; suggest `/frontend-design-audit:improve` from the other plugin
+- App needs the table/search standard applied (not full visual redesign) → use the `smart-table` or `universal-search` skill
+- App is React but not Next.js → not supported here (this skill assumes Next.js App Router); redesign manually instead
 
 ## Hard rules
 

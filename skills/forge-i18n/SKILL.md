@@ -15,9 +15,10 @@ You orchestrate. Per-file extraction is done by `i18n-extractor` agents (one per
 
 ## Phase 0 — Detect environment
 
+The optional path argument is supplied by the user (it is NOT a shell `$1`). Use it if given, otherwise the current directory; substitute the resolved absolute path for `[TARGET]` below.
+
 ```bash
-TARGET="${1:-$(pwd)}"
-cd "$TARGET"
+cd "[TARGET]"   # the app directory: the path argument, or the current directory
 ```
 
 Determine:
@@ -409,7 +410,7 @@ For every translated string, also add a sibling metadata key `_ai_translated: tr
 ### 5c. Log per-batch
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-i18n task_done \
-  phase=extract namespace=$NS strings=$N flagged=$FLAGGED
+  phase=extract namespace=[namespace] strings=[count] flagged=[count]
 ```
 
 ---
@@ -528,7 +529,7 @@ Pick 2 target locales (e.g. en + the first chosen target like es). For each rout
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-i18n task_done \
-  locales=$LOCALES strings=$TOTAL flagged=$FLAGGED
+  locales=[locale list] strings=[count] flagged=[count]
 ```
 
 Tell the user:
