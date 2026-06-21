@@ -108,7 +108,7 @@ If any of these are missing, send `{"type": "foundation_failed"}` to parent and 
 
 ### Phase 1 mode (frontend issues only)
 
-Spawn one `app-forge-teams:frontend-builder` per issue (max 4 parallel). Pass each builder:
+Spawn at most 4 `app-forge-teams:frontend-builder` agents at once. Queue the rest: when a builder sends `task_done`, take the next queued issue and spawn (or reuse) a builder for it, keeping no more than 4 in flight at any time. Repeat until the queue is empty. Pass each builder:
 - Their assigned issue number + title
 - Their context file path: `.forge-context/issue-{N}.md` — the builder reads this instead of `forge-prd.md`
 - The team name
@@ -126,7 +126,7 @@ Spawn `app-forge-teams:db-designer` with all `phase:database` issues plus their 
 
 **2b. backend-builders in parallel (after db-designer completes)**
 
-Spawn one `app-forge-teams:backend-builder` per `phase:backend` issue (max 4 parallel). Pass each builder:
+Spawn at most 4 `app-forge-teams:backend-builder` agents at once. Queue the rest: when a builder sends `task_done`, take the next queued `phase:backend` issue and spawn (or reuse) a builder, keeping no more than 4 in flight at any time. Repeat until the queue is empty. Pass each builder:
 - Their assigned issue + context file path
 - The team name and repo name
 - Phase label: `phase:backend`
@@ -155,7 +155,7 @@ Spawn `app-forge-teams:arch-reviewer`:
 - All findings → GitHub issues with `[ARCH]` title prefix (no inline route — structural fixes don't fit "inline")
 - Pass it the phase label
 
-When all builders have completed, SendMessage to BOTH reviewers: `{"type": "builders_done"}` — they do a final pass and send `review_done`.
+When all builders have completed, SendMessage to BOTH reviewers: `{"type": "builders_done"}` — they do a final pass and send `review_done`. If a reviewer has not sent `review_done` within a reasonable wait (≈2 task cycles), SendMessage once to ask for status; if it is still silent, proceed without it, note "reviewer [name] did not report — review may be incomplete" in the final report, and continue. Never block the phase indefinitely on a silent reviewer.
 
 ---
 

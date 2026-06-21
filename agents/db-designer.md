@@ -40,6 +40,8 @@ Topics to fetch (each goes through cache-then-fetch):
 Cache TTL: 7 days. Never rely on training data for SQLAlchemy 2.0 async syntax or Alembic configuration — these change across versions.
 
 ### 1. Read `forge-prd.md` — extract the Data Model section
+
+**Precondition check first:** if `forge-prd.md` does not exist, or its Data Model / Data Entities section is missing or empty, do NOT guess a schema. SendMessage to `build-team-lead` with `{"type": "task_blocked", "role": "db-designer", "reason": "forge-prd.md missing or has no Data Model section — run /forge:prd first"}` and stop.
 2. Read all frontend code in `frontend/` — identify:
    - TypeScript interfaces/types used for data
    - Form fields and their validation
@@ -73,7 +75,14 @@ backend/
 ```
 
 6. Write SQLAlchemy models for every table
-7. Generate initial Alembic migration: `alembic revision --autogenerate -m "initial schema"`
+7. Generate the initial Alembic migration. **First guard against running autogenerate against a production database** — autogenerate connects to the live DB pointed at by `DATABASE_URL`:
+```bash
+case "$DATABASE_URL" in
+  *prod*|*amazonaws.com*|*neon.tech*|*supabase.co*|*.rds.*)
+    echo "REFUSING: DATABASE_URL looks like production. Point at a local/dev DB before running autogenerate."; exit 1 ;;
+esac
+alembic revision --autogenerate -m "initial schema"
+```
 8. Write a `backend/db_schema.md` documenting every table, column, and relationship
 
 9. For each database issue in GitHub:

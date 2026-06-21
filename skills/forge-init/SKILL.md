@@ -26,7 +26,7 @@ If the repo name is already taken, append a short suffix (e.g., `-app`) and retr
 
 ## Step 2 — Labels
 
-Create all labels (delete existing defaults first):
+Create all labels (delete existing defaults first). Only run these deletes against the repo you just created in Step 1 — never against a pre-existing repo, since its default labels may already be in use on real issues:
 ```bash
 gh label delete "bug" --yes 2>/dev/null; gh label delete "documentation" --yes 2>/dev/null
 gh label delete "duplicate" --yes 2>/dev/null; gh label delete "enhancement" --yes 2>/dev/null
@@ -137,3 +137,5 @@ Tell the user:
 > - Architecture/Security/Testing: [N] issues
 >
 > Run `/forge:build-frontend` to start Phase 1 (frontend build).
+>
+> **Note:** `forge-state.json` tracks the project phase and is read by every `/forge:*` skill. Do not delete or rename it during an active build — doing so makes subsequent skills think the project was never initialized.

@@ -7,7 +7,7 @@ allowed-tools: Read, Bash, Agent, TeamCreate, TaskCreate, SendMessage
 
 # forge:review — Coordinated Review Team (v2)
 
-Read `forge-state.json` for the repo name.
+Read `forge-state.json` using the Read tool and extract the `repo` field into `$REPO`. If the file does not exist, tell the user to run `/forge:init` first and stop. If `phase` is `ready` (nothing has been built yet), tell the user there is no code to review yet and stop.
 
 ### Step 1 — Create the review team
 Use TeamCreate:

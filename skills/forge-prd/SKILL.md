@@ -30,6 +30,8 @@ Extract:
 - Data entities
 - Tech stack
 
+If any required section is missing or empty (app name, problem statement, target users, core features, data entities), do NOT proceed — tell the user which sections are blank and ask them to re-run `/forge:idea` to populate them first, then stop.
+
 ---
 
 ## Step 2 — Create the PRD team

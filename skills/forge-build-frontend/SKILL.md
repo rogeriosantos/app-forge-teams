@@ -40,7 +40,9 @@ cd frontend && npx shadcn@latest init -d
 
 ## Step 1.5 — Foundation phase (BLOCKING — MANDATORY)
 
-Spawn the `frontend-foundation-builder` agent FIRST, BEFORE any feature builders. This agent picks the brand palette, applies it to `globals.css`, builds the app shell, configures locale resolution (NEVER in URL — see user's `~/.claude/rules/i18n.md`), and lays down a visual baseline smoke test.
+**Resume check (interrupted builds):** if `frontend/DESIGN.md` already exists, the foundation completed on a prior run — skip this step and go straight to Step 2. The per-issue `status:agent-todo` labels are the resume cursor: issues already built were relabeled off `status:agent-todo`, so Step 2's query won't re-dispatch them. This makes re-running `/forge:build-frontend` after an interruption safe — it resumes from where it stopped instead of rebuilding everything.
+
+Otherwise, spawn the `frontend-foundation-builder` agent FIRST, BEFORE any feature builders. This agent picks the brand palette, applies it to `globals.css`, builds the app shell, configures locale resolution (NEVER in URL — see user's `~/.claude/rules/i18n.md`), and lays down a visual baseline smoke test.
 
 **Without this step, every feature builder accepts shadcn `neutral` defaults and the compounded result is wireframe-grade output regardless of code cleanliness.** This is the exact failure that cost 12 hours on the Aconchego project (2026-05-27). The agent exists specifically to prevent that.
 
@@ -65,7 +67,7 @@ gh issue list \
   --label "status:agent-todo" \
   --state open \
   --json number,title,body,labels \
-  --limit 50 \
+  --limit 200 \
   -R "$REPO"
 ```
 

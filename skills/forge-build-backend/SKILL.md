@@ -63,6 +63,7 @@ Use the Agent tool:
   - Database issues, backend issues, integration issues (separate lists)
   - Repo name (`owner/repo`)
   - Path to `forge-prd.md` and path to `frontend/` directory
+  - `approval_notes` from `forge-state.json` (if present): human feedback on the frontend that the backend/integration work must respect. Tell build-team-lead to factor these notes into the build.
   - Sequencing instruction:
     1. **First** run `db-designer` (sequential — backend needs the schema)
     2. **Then** spawn parallel `backend-builder` agents (one per backend issue, max 4 at a time)
