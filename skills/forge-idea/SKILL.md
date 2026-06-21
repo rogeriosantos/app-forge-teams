@@ -143,8 +143,13 @@ Before saving, present the forge-context.md content to the user and ask:
 
 If the user approves, save it.
 
-### Step 7 — Done
+### Step 7 — Log and report
 
-After saving, tell the user:
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-idea task_done \
+  artifact=forge-context.md app=$APP_NAME
+```
+
+Tell the user:
 > `forge-context.md` saved with domain research included. The PRD team will use this as the foundation.
 > Run `/forge:prd` to generate the full PRD (includes deep domain research, workflow design, and validation).

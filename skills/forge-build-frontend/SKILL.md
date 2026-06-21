@@ -34,6 +34,25 @@ npx create-next-app@latest frontend --typescript --tailwind --app --eslint --src
 cd frontend && npx shadcn@latest init -d
 ```
 
+**Do NOT accept shadcn `baseColor: neutral` as the final palette.** That's a scaffolding default. Step 1.5 will replace it with a real brand palette.
+
+---
+
+## Step 1.5 — Foundation phase (BLOCKING — MANDATORY)
+
+Spawn the `frontend-foundation-builder` agent FIRST, BEFORE any feature builders. This agent picks the brand palette, applies it to `globals.css`, builds the app shell, configures locale resolution (NEVER in URL — see user's `~/.claude/rules/i18n.md`), and lays down a visual baseline smoke test.
+
+**Without this step, every feature builder accepts shadcn `neutral` defaults and the compounded result is wireframe-grade output regardless of code cleanliness.** This is the exact failure that cost 12 hours on the Aconchego project (2026-05-27). The agent exists specifically to prevent that.
+
+Use the Agent tool:
+- `subagent_type`: `"app-forge-teams:frontend-foundation-builder"`
+- `name`: `"frontend-foundation-builder"`
+- `prompt`: Pass the path to `forge-prd.md`, the app name + tagline from `forge-state.json`, and the repo name. Tell it: "You run FIRST. Pick a brand palette intentionally (not neutral), apply it to globals.css, build the app shell, configure locale resolution with `localePrefix: 'never'`, lay down a Playwright CLI visual baseline. Read your own screenshots before declaring done."
+
+**Wait for `foundation_done` message** with `ready_for_feature_builders: true`. If `ready_for_feature_builders: false`, DO NOT proceed — surface the gaps to the user and ask whether to retry the foundation or escalate.
+
+If foundation passes: proceed to Step 2. Every subsequent builder will read `frontend/DESIGN.md` and consume the tokens it writes.
+
 ---
 
 ## Step 2 — Fetch all frontend issues
@@ -119,9 +138,38 @@ When the Agent tool returns, extract `issues_created` from the arch-reviewer's c
 
 ---
 
-## Step 6 — Update state
+## Step 5.7 — Visual quality gate (MANDATORY before declaring phase complete)
+
+Engineering metrics (lint 0/0, types clean, build pass, smoke routes 200) are NECESSARY but NOT SUFFICIENT. Run a visual readback pass before declaring `frontend-review`:
+
+```bash
+cd frontend
+# Playwright CLI must already be installed by the foundation builder
+node tests/visual/baseline.spec.ts  # or however the foundation builder wired it
+# OR run a ad-hoc screenshot script over 8-10 representative routes
+```
+
+For each screenshot taken, use the **Read tool** on the PNG file. Don't trust filenames or sizes — read the actual pixels. For each, answer honestly:
+
+> **"Would I be willing to demo this page to a paying customer tomorrow?"**
+
+If any answer is NO, the phase is NOT complete. Surface the gap to the user with the specific failing screenshot path. Common failure patterns:
+- Pages look wireframe-grade (no brand color, no app shell, no iconography)
+- Safety-critical workflows have no visual urgency states (e.g. a med list where late doses look identical to done doses)
+- The product's emotional positioning is absent from the visual ("Aconchego" = warm welcome but the page is sterile gray)
+
+If everything passes the visual gate, continue to Step 6.
+
+---
+
+## Step 6 — Update state and log phase change
 
 Update `forge-state.json` → `"phase": "frontend-review"`.
+
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-build-frontend phase_change \
+  from=ready to=frontend-review issues=$ISSUES_BUILT
+```
 
 ---
 

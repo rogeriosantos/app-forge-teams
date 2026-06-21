@@ -99,7 +99,7 @@ If the frontend has console errors or the backend health check fails:
 
 ---
 
-## Step 5 — Update state and report
+## Step 5 — Update state, log, and report
 
 Update `forge-state.json`:
 ```json
@@ -111,6 +111,12 @@ Update `forge-state.json`:
     "deployed_at": "[ISO timestamp]"
   }
 }
+```
+
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-deploy phase_change \
+  from=integration-review to=deployed \
+  frontend_url=[url] backend_url=[url]
 ```
 
 Tell the user:

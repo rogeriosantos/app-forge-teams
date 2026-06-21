@@ -29,7 +29,7 @@ Direct invocation — scan and generate all missing tests.
 </commentary>
 </example>
 
-model: inherit
+model: sonnet
 color: green
 tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
 ---

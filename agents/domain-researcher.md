@@ -1,7 +1,7 @@
 ---
 name: domain-researcher
 description: Research agent that investigates industry best practices, domain terminology, standard workflows, and regulatory requirements for the application's domain before any PRD is written. Use as part of the forge-prd team.
-model: inherit
+model: sonnet
 color: emerald
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "SendMessage", "WebSearch", "WebFetch"]
 ---

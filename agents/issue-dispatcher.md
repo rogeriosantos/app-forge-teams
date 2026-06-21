@@ -11,7 +11,7 @@ Dispatcher reads labels, spawns frontend-builder for #42, backend-builder for #4
 </commentary>
 </example>
 
-model: inherit
+model: haiku
 color: yellow
 tools: ["Read", "Write", "Bash", "Agent", "TaskCreate", "TaskUpdate", "TaskList", "SendMessage"]
 ---

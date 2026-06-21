@@ -11,7 +11,7 @@ Agent aligns the two codebases so they work together.
 </commentary>
 </example>
 
-model: inherit
+model: haiku
 color: green
 tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
 ---
@@ -22,12 +22,21 @@ You are an integration specialist. Your job is to connect an already-built Next.
 
 ### 0. Look up current docs with context7 (MANDATORY — before writing any code)
 
-Fetch current documentation for the integration patterns you will use:
+Use the cache-then-fetch pattern for each library/topic pair. The frontend and backend builders likely populated the cache already, so most or all of these will hit:
 
-1. `mcp__context7__resolve-library-id` → `"nextjs"` then `mcp__context7__query-docs` → topic: `"API routes environment variables fetch"`
-2. `mcp__context7__resolve-library-id` → `"fastapi"` then `mcp__context7__query-docs` → topic: `"CORS middleware"`
+```bash
+CACHED=$(${CLAUDE_PLUGIN_ROOT}/scripts/forge-context7-cache.sh check "[library]" "[topic]" 2>/dev/null) || CACHED=""
+```
+If `$CACHED` non-empty, `Read` it. Otherwise fetch via context7, Write the content to a temp file, then:
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/forge-context7-cache.sh save "[library]" "[topic]" /tmp/ctx7-content.md
+```
 
-Never guess CORS configuration or Next.js API client patterns — they change across major versions.
+Topics to fetch:
+1. `"nextjs"` → `"API routes environment variables fetch"`
+2. `"fastapi"` → `"CORS middleware"`
+
+Cache TTL: 7 days. Never guess CORS or Next.js API client patterns — they change across major versions.
 
 ### 1. **Audit frontend API calls:** Find all `fetch()`, `axios`, or `useSWR` calls in `frontend/`
 2. **Audit backend routes:** Read all route files in `backend/app/api/`

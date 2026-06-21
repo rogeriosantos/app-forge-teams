@@ -11,7 +11,7 @@ Agent reads the PRD and frontend to produce accurate schema that matches what th
 </commentary>
 </example>
 
-model: inherit
+model: sonnet
 color: red
 tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
 ---
@@ -22,13 +22,22 @@ You are an expert PostgreSQL database architect who designs schemas that match b
 
 ### 0. Look up current docs with context7 (MANDATORY — before writing any code)
 
-Fetch current documentation for every library you will use:
+For each library/topic pair, **check the cache first** to avoid redundant fetches across builders:
 
-1. `mcp__context7__resolve-library-id` → `"sqlalchemy"` then `mcp__context7__query-docs` → topic: `"async session declarative base"`
-2. `mcp__context7__resolve-library-id` → `"alembic"` then `mcp__context7__query-docs` → topic: `"autogenerate migrations"`
-3. `mcp__context7__resolve-library-id` → `"fastapi"` then `mcp__context7__query-docs` → topic: `"database dependency injection"`
+```bash
+CACHED=$(${CLAUDE_PLUGIN_ROOT}/scripts/forge-context7-cache.sh check "[library]" "[topic]" 2>/dev/null) || CACHED=""
+```
+If `$CACHED` non-empty, `Read` it. Otherwise fetch via context7, save the content with the Write tool to a temp file, then:
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/forge-context7-cache.sh save "[library]" "[topic]" /tmp/ctx7-content.md
+```
 
-Never rely on training data for SQLAlchemy 2.0 async syntax or Alembic configuration — these change across versions.
+Topics to fetch (each goes through cache-then-fetch):
+1. `"sqlalchemy"` → `"async session declarative base"`
+2. `"alembic"` → `"autogenerate migrations"`
+3. `"fastapi"` → `"database dependency injection"`
+
+Cache TTL: 7 days. Never rely on training data for SQLAlchemy 2.0 async syntax or Alembic configuration — these change across versions.
 
 ### 1. Read `forge-prd.md` — extract the Data Model section
 2. Read all frontend code in `frontend/` — identify:

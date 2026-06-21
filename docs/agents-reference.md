@@ -23,13 +23,28 @@ Agents are not invoked directly — they are spawned by skills or by other agent
 **Implement agents**
 - [issue-dispatcher](#issue-dispatcher)
 
-**Audit agents**
+**Tracking** — every event-emitting agent appends one line to `forge-history.jsonl` via `${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh`. Schema in [docs/tracking-ledger.md](./tracking-ledger.md).
+
+**Audit agents** — all 13 are spawned in parallel by `forge:audit`
+
+*Quality (6)*
 - [dead-code-hunter](#dead-code-hunter)
 - [missing-impl-auditor](#missing-impl-auditor)
 - [data-integrity-auditor](#data-integrity-auditor)
 - [security-auditor](#security-auditor)
 - [consistency-auditor](#consistency-auditor)
 - [saas-pages-auditor](#saas-pages-auditor)
+
+*UX (4)* — see source files in `agents/` for full specs
+- `ux-flow-auditor` — broken navigation, dead-end pages, orphan routes
+- `ux-interaction-auditor` — non-functional buttons, empty handlers, broken forms
+- `ux-state-auditor` — missing loading/empty/error states, silent failures
+- `ux-consistency-auditor` — mixed CRUD patterns, terminology mismatches
+
+*Workflow (3)* — see source files in `agents/` for full specs
+- `workflow-completeness-auditor` — spec features without complete implementation paths
+- `workflow-logic-auditor` — business rules described in spec but not enforced in code
+- `workflow-edge-case-auditor` — unhandled edge cases in implemented workflows
 
 ---
 
@@ -93,10 +108,15 @@ Implements one frontend GitHub issue at a time. Reports progress to the team lea
 7. Commits with `git add [specific files]` (never `git add -A`)
 8. Closes the GitHub issue with a commit reference
 
-**Mandatory design standards:**
-- **Apple HIG principles** — radical simplicity, 8px grid, 44px touch targets, semantic color palette
-- **Table behavior** — sort, column visibility/resize/reorder, pagination (default 10), localStorage persistence, reset button
-- **Universal search** — multi-field, diacritics-insensitive, `+` AND operator via `lib/search.ts`
+**Mandatory design standards** — read these before implementing UI:
+
+| Reference | Path | Read it when |
+|---|---|---|
+| Apple Design System | `references/_shared/apple-design-system.md` | Always, for any UI surface — full palette, 8px grid, component specs, recipes, anti-patterns, verification checklist |
+| Table Standard | `references/_shared/table-standard.md` | Issue involves a table, list, or grid — sort, column visibility/resize/reorder, pagination, localStorage persistence, reset button |
+| Search Standard | `references/_shared/search-standard.md` | Issue involves a search bar or filter — multi-field, diacritics-insensitive, `+` AND operator via `lib/search.ts` |
+
+These docs are the **single source of truth** for design rules. The frontend-builder agent file references them by `${CLAUDE_PLUGIN_ROOT}` path; updating a rule means editing the shared doc once, not the agent.
 
 **Tech stack enforced:**
 - Next.js 16 App Router (Server Components by default, `'use client'` only when needed)

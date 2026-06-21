@@ -55,9 +55,14 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  QUALITY & SHIP
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- /forge:audit            6-agent parallel audit:
-                           dead-code · missing-impl · data-integrity
-                           security · consistency · saas-pages
+ /forge:audit            13-agent unified parallel audit:
+                          • Quality (6):  dead-code · missing-impl · data-integrity
+                                          security · consistency · saas-pages
+                          • UX (4):       ux-flows · ux-interactions
+                                          ux-states · ux-consistency
+                          • Workflow (3): workflow-completeness
+                                          workflow-logic · workflow-edge-cases
+                         All 13 share one .forge-cache/ build (auto-reused if fresh).
                          → AUDIT_REPORT.md + GitHub issues
 
  /forge:implement        Fix audit findings
@@ -69,12 +74,19 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  ANYTIME
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- /forge:status           Phase · open issues · next step
+ /forge:status           Phase · open issues · recent ledger activity · next step
+ /forge:metrics          Aggregate stats from forge-history.jsonl
+ /forge:replay           Narrative reconstruction of a past session (debugging)
  /forge:implement [N]    Implement any specific issue(s) on demand
  /forge:review           Any extra review pass
- /forge:audit            Any extra audit pass
+ /forge:audit            13-agent unified audit (quality · UX · workflow)
+ /forge:redesign         Modernize visual design — apply Apple HIG to existing app,
+                         swap palette, refactor components in batches w/ checkpoints
+ /forge:i18n             Internationalize an existing app — extract strings, set up
+                         next-intl (cookie-based, no URL prefix), AI-translate,
+                         add Language switcher to /settings or /profile
  /forge:build            Phase dispatcher (shows what to run next)
- /forge:reset            Reset phase to "ready" (optionally --hard to delete code)
+ /forge:reset [--hard]   Reset phase to "ready" (--hard deletes code + artifacts)
 ```
 
 ---
@@ -92,6 +104,15 @@
 **Rule:** `forge:implement` is always a consequence of `forge:review` or `forge:audit`. It never replaces a build phase.
 
 ---
+
+## Tracking ledger — `forge-history.jsonl`
+
+Every agent appends one line to `forge-history.jsonl` on key events: spawn, task_started, task_done, finding_high, finding_issued, regression_run, regression_skipped, audit_run, phase_change, design_refs_read, review_done.
+
+`/forge:status` surfaces recent activity; the full schema is in [`docs/tracking-ledger.md`](docs/tracking-ledger.md). Quick query:
+```bash
+tail -10 forge-history.jsonl | jq -c
+```
 
 ## forge-state.json phases
 
@@ -120,19 +141,23 @@ deployed
 | `db-designer` | PostgreSQL schema + Alembic migrations | `build-team-lead` |
 | `integration-agent` | Wires frontend ↔ backend | `build-team-lead` |
 
-### Review agents
-| Agent | Role | Spawned by |
-|-------|------|-----------|
-| `code-reviewer` | Live code quality review | `build-team-lead`, `forge:review` |
-| `arch-reviewer` | Live architecture review | `build-team-lead`, `forge:review` |
-| `test-runner` | Full regression suite + Playwright | `build-team-lead`, `issue-dispatcher` |
+### Review agents (partitioned scopes — no runtime dedup)
+| Agent | Scope | Title prefix | Spawned by |
+|-------|------|---|-----------|
+| `code-reviewer` | Line-level: security, types, validation, UI states, i18n, a11y, design-system | `[CODE]` | `build-team-lead`, `forge:review` |
+| `arch-reviewer` | Structural: component size, prop drilling, service layer, repo pattern, N+1, response shapes | `[ARCH]` | `build-team-lead`, `forge:review` |
+| `test-runner` | Regression suite + Playwright sweep. Skips if no source changes since last run. | — | `build-team-lead`, `issue-dispatcher` |
 
 ### Implement agents
 | Agent | Role | Spawned by |
 |-------|------|-----------|
 | `issue-dispatcher` | Routes issues → right builder | `forge:implement` |
+| `redesign-applier` | Refactors one component family (buttons / cards / inputs / etc.) to comply with the Apple design system. Preserves component APIs. Captures before/after screenshots. | `forge:redesign` |
+| `i18n-extractor` | Replaces hardcoded user-facing strings with `t('key')` calls in one namespace, populates `messages/en.json`, flags interpolations and plurals for review. | `forge:i18n` |
 
-### Audit agents (all spawned in parallel by forge:audit)
+### Audit agents (all 13 spawned in parallel by forge:audit)
+
+**Quality (6)**
 | Agent | Role |
 |-------|------|
 | `dead-code-hunter` | Finds unused code |
@@ -141,3 +166,18 @@ deployed
 | `security-auditor` | Finds security vulnerabilities |
 | `consistency-auditor` | Finds naming/pattern inconsistencies |
 | `saas-pages-auditor` | Checks for missing SaaS pages |
+
+**UX (4) — skipped if no frontend**
+| Agent | Role |
+|-------|------|
+| `ux-flow-auditor` | Broken navigation, dead-end pages, orphan routes |
+| `ux-interaction-auditor` | Non-functional buttons, empty handlers, broken forms |
+| `ux-state-auditor` | Missing loading/empty/error states, silent failures |
+| `ux-consistency-auditor` | Mixed CRUD patterns, terminology mismatches |
+
+**Workflow (3)**
+| Agent | Role |
+|-------|------|
+| `workflow-completeness-auditor` | Spec features without implementation paths |
+| `workflow-logic-auditor` | Business rules not enforced in code |
+| `workflow-edge-case-auditor` | Unhandled edge cases in implemented flows |

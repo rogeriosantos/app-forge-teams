@@ -353,10 +353,10 @@ Next steps:
 /forge:audit
 ```
 
-Six auditors run in parallel, each writing their report file. After ~3 minutes:
+13 auditors run in parallel across three domains (quality 6 · UX 4 · workflow 3), each writing their report file. After ~3 minutes:
 
 ```
-Audit complete. Found 18 issues across 6 categories.
+Audit complete. Found 18 issues across 3 domains.
   CRITICAL: 1  |  HIGH: 3  |  MEDIUM: 9  |  LOW: 5
 
 Full report: AUDIT_REPORT.md

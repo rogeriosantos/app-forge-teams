@@ -136,9 +136,13 @@ mkdir my-app && cd my-app
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  QUALITY & SHIP
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- /forge:audit            6-agent parallel audit:
-                           dead-code · missing-impl · data-integrity
-                           security · consistency · saas-pages
+ /forge:audit            13-agent unified parallel audit:
+                          • Quality (6):  dead-code · missing-impl · data-integrity
+                                          security · consistency · saas-pages
+                          • UX (4):       ux-flows · ux-interactions
+                                          ux-states · ux-consistency
+                          • Workflow (3): workflow-completeness
+                                          workflow-logic · workflow-edge-cases
                          → AUDIT_REPORT.md + GitHub issues
 
  /forge:implement        Fix audit findings
@@ -189,11 +193,15 @@ State is tracked in `forge-state.json` in your project directory.
 | `/forge:build-backend` | Phase 2 | Sequenced team: DB → backend → integration → review |
 | `/forge:review [scope]` | Anytime | Parallel code + arch review pass → GitHub issues |
 | `/forge:implement [N]` | Anytime | Implement specific issues (or all `status:agent-todo`) |
-| `/forge:audit` | Anytime | 6-agent parallel audit → `AUDIT_REPORT.md` + issues |
+| `/forge:audit` | Anytime | 13-agent unified audit (quality · UX · workflow) → `AUDIT_REPORT.md` + issues |
+| `/forge:redesign` | Anytime | **Modernize an existing app's visual design** — apply Apple HIG, swap palette, refactor components in batches with checkpoints. Works on any Next.js app. |
+| `/forge:i18n` | Anytime | **Internationalize an existing app** — extract hardcoded strings, set up next-intl with cookie-based locale (no URL prefix), generate AI translations, add Language switcher to /settings or /profile. Works on any Next.js app. |
 | `/forge:deploy` | Ship | Deploy frontend + backend, Playwright smoke test |
-| `/forge:status` | Anytime | Show phase, open issues, next recommended step |
+| `/forge:status` | Anytime | Show phase, open issues, recent ledger activity, next step |
+| `/forge:metrics` | Anytime | Aggregate stats from `forge-history.jsonl` (build progress, reviewer findings, regression skip rate, design coverage) |
+| `/forge:replay` | Anytime | Reconstruct a past session as a narrative — useful for post-mortems |
 | `/forge:build` | Anytime | Phase dispatcher — tells you what to run next |
-| `/forge:reset [--hard]` | Anytime | Reset phase to `ready`, optionally delete code |
+| `/forge:reset [--hard] [--force]` | Anytime | Reset phase to `ready`. `--hard` deletes code + artifacts. `--force` bypasses uncommitted-changes safety check. |
 
 → See [docs/skills-reference.md](docs/skills-reference.md) for full documentation of each skill.
 
@@ -206,7 +214,7 @@ State is tracked in `forge-state.json` in your project directory.
 | Agent | Role | Spawned by |
 |-------|------|-----------|
 | `build-team-lead` | Orchestrates builders + reviewers, phase-aware sequencing | `forge:build-frontend`, `forge:build-backend` |
-| `frontend-builder` | Implements one frontend issue (Next.js, shadcn/ui, playwright verify) | `build-team-lead` |
+| `frontend-builder` | Implements one frontend issue (Next.js, shadcn/ui, playwright verify). Follows shared design references in `references/_shared/` (Apple design system · table standard · search standard) | `build-team-lead` |
 | `backend-builder` | Implements one FastAPI issue (with pytest before commit) | `build-team-lead` |
 | `db-designer` | PostgreSQL schema + SQLAlchemy models + Alembic migrations | `build-team-lead` (Phase 2, first) |
 | `integration-agent` | Wires frontend API calls ↔ backend endpoints, CORS, env vars | `build-team-lead` (Phase 2, last) |
@@ -215,8 +223,8 @@ State is tracked in `forge-state.json` in your project directory.
 
 | Agent | Role | Spawned by |
 |-------|------|-----------|
-| `code-reviewer` | Live code quality review — HIGH findings → builders inline, rest → issues | `build-team-lead`, `forge:review` |
-| `arch-reviewer` | Architecture review — component structure, data flow, service layer | `forge:build-frontend` (post-build), `forge:build-backend` (post-build), `forge:review` |
+| `code-reviewer` | **Line-level** review (security, types, validation, UI states, i18n, a11y, design-system rules). HIGH → builders inline, MED/LOW → `[CODE]`-prefixed issues | `build-team-lead`, `forge:review` |
+| `arch-reviewer` | **Structural** review (component size, prop drilling, service layer, repository pattern, N+1 queries, response shapes). All findings → `[ARCH]`-prefixed issues | `build-team-lead`, `forge:review` |
 | `test-runner` | Full regression suite: pytest + npm build + Playwright sweep of all routes | `build-team-lead`, `issue-dispatcher` |
 
 ### Implement agents
@@ -225,8 +233,9 @@ State is tracked in `forge-state.json` in your project directory.
 |-------|------|-----------|
 | `issue-dispatcher` | Routes issues to correct builder by label, enforces sequencing | `forge:implement` |
 
-### Audit agents (all run in parallel via `forge:audit`)
+### Audit agents (all 13 run in parallel via `forge:audit`)
 
+**Quality (6)**
 | Agent | Finds |
 |-------|-------|
 | `dead-code-hunter` | Unused functions, imports, components, DB columns |
@@ -235,6 +244,21 @@ State is tracked in `forge-state.json` in your project directory.
 | `security-auditor` | Hardcoded secrets, missing auth, SQL injection, XSS, CSRF, rate limiting |
 | `consistency-auditor` | Mixed naming, duplicate logic, inconsistent error formats, circular deps |
 | `saas-pages-auditor` | Missing SaaS pages: auth, profile, billing, onboarding, legal, error pages |
+
+**UX (4) — skipped if no frontend**
+| Agent | Finds |
+|-------|-------|
+| `ux-flow-auditor` | Broken navigation, dead-end pages, orphan routes, missing CRUD steps |
+| `ux-interaction-auditor` | Non-functional buttons, empty handlers, forms that don't submit |
+| `ux-state-auditor` | Missing loading/empty/error states, silent failures, no feedback |
+| `ux-consistency-auditor` | Mixed CRUD patterns, terminology mismatches, inconsistent feedback |
+
+**Workflow (3)**
+| Agent | Finds |
+|-------|-------|
+| `workflow-completeness-auditor` | Spec features without complete implementation paths |
+| `workflow-logic-auditor` | Business rules described in spec but not enforced in code |
+| `workflow-edge-case-auditor` | Unhandled edge cases in implemented workflows |
 
 → See [docs/agents-reference.md](docs/agents-reference.md) for full agent documentation.
 
@@ -295,6 +319,9 @@ my-app/
 ├── forge-context.md        # Structured app spec (from /forge:idea)
 ├── forge-prd.md            # Full PRD with issue breakdown (from /forge:prd)
 ├── forge-state.json        # Current phase + GitHub repo info
+├── forge-history.jsonl     # Append-only audit trail of every agent event
+├── .forge-context/         # Per-issue PRD slices (one file per issue)
+├── .forge-cache/           # Pre-built codebase scan for audit agents
 │
 ├── frontend/               # Next.js 16 App Router
 │   ├── app/
@@ -386,6 +413,7 @@ Labels created by `/forge:init`:
 | [Agents Reference](docs/agents-reference.md) | Full documentation for every agent |
 | [End-to-End Example](docs/example-walkthrough.md) | Complete session from idea to deployed app |
 | [Workflow Reference](WORKFLOW.md) | Quick-reference workflow diagram |
+| [Tracking Ledger](docs/tracking-ledger.md) | `forge-history.jsonl` schema, query recipes |
 
 ---
 

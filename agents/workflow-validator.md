@@ -1,7 +1,7 @@
 ---
 name: workflow-validator
 description: Validation agent that audits designed workflows for logical inconsistencies, missing edge cases, contradictions, and domain violations before the PRD is finalized. Use as part of the forge-prd team.
-model: inherit
+model: sonnet
 color: red
 tools: ["Read", "Glob", "Grep", "Bash", "Write", "SendMessage", "WebSearch"]
 ---

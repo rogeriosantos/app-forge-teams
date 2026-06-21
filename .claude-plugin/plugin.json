@@ -5,5 +5,7 @@
   "author": {
     "name": "md9488"
   },
+  "homepage": "https://github.com/rogeriosantos/app-forge-teams",
+  "repository": "https://github.com/rogeriosantos/app-forge-teams",
   "keywords": ["agent-teams", "app-factory", "full-stack", "github", "workflow", "v2"]
 }

@@ -1,0 +1,17 @@
+{
+  "name": "app-forge-teams",
+  "owner": {
+    "name": "rogeriosantos"
+  },
+  "metadata": {
+    "description": "Marketplace for the app-forge-teams plugin: an application factory that turns an idea into a PRD, GitHub issues, a parallel agent-team build, and an audited review.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "app-forge-teams",
+      "description": "Application factory v2: idea -> PRD -> GitHub issues -> parallel agent-team build (TeamCreate, SendMessage, TaskList) -> review and audit.",
+      "source": "./"
+    }
+  ]
+}

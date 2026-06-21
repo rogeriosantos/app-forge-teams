@@ -110,9 +110,14 @@ Both Agent tool calls return when the reviewers complete. Capture `issues_create
 
 ---
 
-## Step 6 — Update state
+## Step 6 — Update state and log phase change
 
 Update `forge-state.json` → `"phase": "integration-review"`.
+
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-build-backend phase_change \
+  from=approved to=integration-review issues=$ISSUES_BUILT
+```
 
 ---
 

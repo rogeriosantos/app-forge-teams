@@ -83,6 +83,25 @@ Map phases to milestones:
 - `phase:integration` → "Phase 3: Integration"
 - `phase:architecture`, `phase:security`, `phase:testing` → "Phase 4: Review & Polish"
 
+## Step 4.5 — Manage .gitignore for forge artifacts
+
+Ensure the project's `.gitignore` excludes forge-internal files. Create or append to `.gitignore`:
+
+```bash
+touch .gitignore
+for pattern in \
+  "# Forge — internal artifacts" \
+  "forge-history.jsonl" \
+  "forge-history-*.jsonl" \
+  ".forge-cache/" \
+  ".forge-context/" \
+; do
+  grep -qxF "$pattern" .gitignore 2>/dev/null || echo "$pattern" >> .gitignore
+done
+```
+
+`forge-state.json`, `forge-prd.md`, `forge-context.md`, `DOMAIN_RESEARCH.md`, `WORKFLOW_SPEC.md`, `WORKFLOW_VALIDATION.md` are NOT ignored — they're the project's source-of-truth documents and should be committed.
+
 ## Step 5 — Save State
 
 Save `forge-state.json` in current directory:
@@ -101,7 +120,12 @@ Save `forge-state.json` in current directory:
 }
 ```
 
-## Step 6 — Report
+## Step 6 — Log to history and report
+
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-init phase_change \
+  from=none to=ready issues=$ISSUES_CREATED repo=$REPO
+```
 
 Tell the user:
 > Repo `[repo]` initialized with [N] issues across 4 milestones.

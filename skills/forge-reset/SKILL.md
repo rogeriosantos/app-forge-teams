@@ -1,7 +1,7 @@
 ---
 name: forge-reset
 description: Reset the forge project state. Reverts forge-state.json to phase "ready" so you can restart the build phases without losing the GitHub repo, issues, or code. Use when you want to rebuild from scratch after changing the PRD, or when phase state is corrupted.
-argument-hint: "[optional: --hard to also delete generated code directories (frontend/ and backend/)]"
+argument-hint: "[--hard to delete frontend/, backend/, and forge artifacts] [--force to bypass uncommitted-changes check on --hard]"
 allowed-tools: Read, Write, Bash
 ---
 
@@ -26,7 +26,32 @@ Current state:
 
 ---
 
-## Step 2 — Confirm the reset
+## Step 2 — Safety check (only for --hard)
+
+If `--hard` was passed, check for uncommitted work that would be destroyed:
+
+```bash
+DIRTY=$(git status --porcelain 2>/dev/null | head -20)
+UNTRACKED_BUILD=$(find frontend backend -type f -newer forge-state.json 2>/dev/null | head -10)
+```
+
+If `$DIRTY` is non-empty OR there are recent untracked files in `frontend/` or `backend/`, warn the user:
+
+> ⚠️ **Uncommitted changes detected.** `--hard` will permanently delete:
+>
+> ```
+> [list of modified/untracked files in frontend/ and backend/]
+> ```
+>
+> These changes are NOT in git history and will be lost.
+>
+> To proceed anyway: re-run `/forge:reset --hard --force`
+> To save your work first: commit + push, then re-run `/forge:reset --hard`
+> To cancel: do nothing.
+
+If the user did not pass `--force`, **stop here** without making changes.
+
+## Step 3 — Confirm the reset
 
 Ask:
 > **Reset forge project to phase "ready"?**
@@ -34,7 +59,7 @@ Ask:
 > This will:
 > - Set phase back to "ready" in forge-state.json
 > - Clear deployment URLs (if any)
-> [If --hard argument]: - DELETE the `frontend/` and `backend/` directories
+> [If --hard]: - DELETE the `frontend/` and `backend/` directories, `.forge-context/`, `.forge-cache/`, and `forge-history.jsonl`
 >
 > The GitHub repo and all issues are NOT affected.
 >
@@ -44,7 +69,7 @@ If the user does not confirm, stop here.
 
 ---
 
-## Step 3 — Reopen closed issues (optional)
+## Step 4 — Reopen closed issues (optional)
 
 Ask:
 > **Reopen all closed GitHub issues?** This is useful if you want to rebuild from scratch and re-implement everything.
@@ -59,7 +84,7 @@ echo "All closed issues reopened."
 
 ---
 
-## Step 4 — Apply the reset
+## Step 5 — Apply the reset
 
 Update `forge-state.json`:
 ```json
@@ -76,13 +101,24 @@ Remove the `deployment` key if present. Remove `approval_notes` if present.
 
 If `--hard` argument was provided:
 ```bash
-rm -rf frontend/ backend/
-echo "Deleted frontend/ and backend/ directories."
+rm -rf frontend/ backend/ .forge-context/ .forge-cache/ forge-history.jsonl
+echo "Deleted frontend/, backend/, .forge-context/, .forge-cache/, and forge-history.jsonl."
+```
+
+Otherwise (soft reset), preserve the audit trail by archiving the history file:
+```bash
+[ -f forge-history.jsonl ] && mv forge-history.jsonl "forge-history-$(date +%Y%m%d-%H%M%S).jsonl"
+```
+
+Log the reset itself to a fresh ledger:
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-reset phase_change \
+  from=$PREVIOUS_PHASE to=ready hard=$IS_HARD
 ```
 
 ---
 
-## Step 5 — Report
+## Step 6 — Report
 
 > **Reset complete.**
 >

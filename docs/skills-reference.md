@@ -274,9 +274,11 @@ Lists all open `status:agent-todo` issues and asks for confirmation before proce
 
 **What it does:**
 
-Launches 6 specialist auditors in parallel, each writing their own report file, then consolidates into `AUDIT_REPORT.md` and creates GitHub issues.
+Launches **13 specialist auditors in parallel** across three domains (quality · UX · workflow), each writing their own per-category report file. All 13 share a single pre-built `.forge-cache/` (auto-reused if fresh, rebuilt if any source file is newer). Findings are deduplicated within and across domains, then consolidated into one `AUDIT_REPORT.md` with GitHub issues.
 
-**The 6 auditors:**
+If the project has no frontend, the 4 UX auditors are skipped automatically (9 agents run instead of 13).
+
+**Quality (6)**
 
 | Auditor | Finds |
 |---------|-------|
@@ -287,7 +289,24 @@ Launches 6 specialist auditors in parallel, each writing their own report file, 
 | `consistency-auditor` | Mixed naming, duplicate logic, inconsistent error formats, circular dependencies |
 | `saas-pages-auditor` | Missing SaaS pages: login, logout, profile, billing, onboarding, legal, error pages |
 
-**Cross-referencing:** `data-integrity-auditor` coordinates with `missing-impl-auditor` on orphaned DB objects. Findings flagged by multiple auditors are deduplicated.
+**UX (4) — skipped if no frontend**
+
+| Auditor | Finds |
+|---------|-------|
+| `ux-flow-auditor` | Broken navigation, dead-end pages, orphan routes, missing CRUD steps |
+| `ux-interaction-auditor` | Non-functional buttons, empty handlers, forms that don't submit |
+| `ux-state-auditor` | Missing loading/empty/error states, silent failures, no feedback |
+| `ux-consistency-auditor` | Mixed CRUD patterns, terminology mismatches, inconsistent feedback |
+
+**Workflow (3)** — uses `forge-prd.md`, `forge-context.md`, or any spec/PRD/README that documents features and rules. Without a spec, findings are tagged "inferred intent" rather than "spec violation".
+
+| Auditor | Finds |
+|---------|-------|
+| `workflow-completeness-auditor` | Spec features without complete implementation paths |
+| `workflow-logic-auditor` | Business rules described in spec but not enforced in code |
+| `workflow-edge-case-auditor` | Unhandled edge cases in implemented workflows |
+
+**Cross-referencing:** Auditors coordinate via SendMessage to deduplicate (e.g., `data-integrity-auditor` ↔ `missing-impl-auditor` on orphaned DB objects; UX flow ↔ interaction on broken buttons; workflow completeness ↔ logic on partial features). The team lead does a second-pass dedup across domains before writing the report.
 
 **GitHub issues created:**
 - One issue per CRITICAL finding

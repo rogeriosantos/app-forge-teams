@@ -321,7 +321,13 @@ Mark task "Write PRD" as completed.
 
 ---
 
-## Step 8 — Report to user
+## Step 8 — Log and report
+
+```bash
+${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-prd task_done \
+  artifact=forge-prd.md domain=$DOMAIN issues_planned=$ISSUES_PLANNED \
+  validation_critical=$CRITICAL_FOUND validation_high=$HIGH_FOUND
+```
 
 Summarize:
 - Domain researched: [industry]

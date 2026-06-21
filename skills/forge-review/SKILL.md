@@ -19,24 +19,29 @@ description: "Review pass: code quality + architecture"
 ### Step 2 — Spawn both reviewers in parallel
 Use the Agent tool twice (in the same message, parallel):
 
-**code-reviewer agent:**
+**code-reviewer agent** (line-level scope):
 - team_name: "forge-review-[timestamp]"
 - name: "code-reviewer"
 - Scope from argument (frontend/backend/all)
-- Instruction: before creating any issue, check with arch-reviewer via SendMessage to avoid duplicates
+- Title prefix for issues: `[CODE]`
 
-**arch-reviewer agent:**
+**arch-reviewer agent** (structural scope):
 - team_name: "forge-review-[timestamp]"
 - name: "arch-reviewer"
-- Same scope
-- Instruction: before creating any issue, check with code-reviewer via SendMessage to avoid duplicates
+- Same scope filter
+- Title prefix for issues: `[ARCH]`
 
-### Step 3 — Cross-communication protocol
-Both agents will:
-1. Find a potential issue
-2. SendMessage to the other reviewer: "About to create issue: [title] — are you covering this?"
-3. If the other says yes → skip, if no → create the issue
-4. This prevents duplicate issues from two reviewers seeing the same problem
+The two reviewers have **non-overlapping scopes** by design (see their agent files). No runtime SendMessage negotiation — each agent stays in its lane.
+
+### Step 3 — Post-pass dedup (team-lead's job)
+After both reviewers complete, list the issues they created and dedupe by title:
+```bash
+gh issue list --label "type:review-finding" --state open --json number,title -R "$REPO" \
+  | jq -r '.[] | "\(.number)\t\(.title)"' \
+  | sort -u -k2
+```
+
+Rare overlaps (same bug surfaced by both) appear as adjacent lines with similar titles. Close the duplicate manually with a cross-reference comment. Most runs have zero overlaps because the scopes are partitioned.
 
 ### Step 4 — Summarize
 After both complete, use the Read tool to read `forge-state.json` and extract the `repo` field. Then run:

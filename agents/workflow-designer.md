@@ -1,7 +1,7 @@
 ---
 name: workflow-designer
 description: Design agent that creates detailed user workflows, state machines, and business rules based on domain research. Produces workflow specifications that the PRD will implement. Use as part of the forge-prd team.
-model: inherit
+model: opus
 color: violet
 tools: ["Read", "Glob", "Grep", "Bash", "Write", "SendMessage"]
 ---

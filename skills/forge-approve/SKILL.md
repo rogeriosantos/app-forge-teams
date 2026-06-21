@@ -18,6 +18,11 @@ Read `forge-state.json`. If `phase` is not `frontend-review`, tell the user:
 
 2. Update `forge-state.json` → `"phase": "approved"`.
 
+   ```bash
+   ${CLAUDE_PLUGIN_ROOT}/scripts/forge-log.sh forge-approve phase_change \
+     from=frontend-review to=approved
+   ```
+
 3. If there are open review-finding issues from Phase 1 (label `type:review-finding`), show a summary:
 ```bash
 gh issue list --label "type:review-finding" --state open --json number,title

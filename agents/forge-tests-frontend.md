@@ -29,7 +29,7 @@ Direct invocation — scan all pages and generate E2E tests for uncovered flows.
 </commentary>
 </example>
 
-model: inherit
+model: sonnet
 color: cyan
 tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "mcp__playwright__browser_navigate", "mcp__playwright__browser_take_screenshot", "mcp__playwright__browser_snapshot", "mcp__playwright__browser_click", "mcp__playwright__browser_fill_form", "mcp__playwright__browser_type", "mcp__playwright__browser_wait_for", "mcp__playwright__browser_evaluate", "mcp__playwright__browser_console_messages"]
 ---
