@@ -24,6 +24,7 @@ import {
   loadPrefs, savePrefs, clearPrefs, TablePrefs,
 } from '@/lib/smart-table-utils';
 import { useDebounce } from '@/lib/use-debounce';
+import { PaginationBar } from '@/components/ui/pagination-bar';
 
 export interface ColumnDef<T> {
   key: keyof T & string;
@@ -45,7 +46,6 @@ interface SmartTableProps<T extends Record<string, unknown>> {
   className?: string;
 }
 
-const PAGE_SIZES = [10, 25, 50, 75, 100];
 const MIN_COL_WIDTH = 60;
 const FILTER_THRESHOLD = 20;
 
@@ -406,37 +406,21 @@ export function SmartTable<T extends Record<string, unknown>>({
         </table>
       </div>
 
-      {/* Pagination + gear (only when > 10 records) */}
+      {/* Pagination + gear */}
       {data.length > 10 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <span>Rows:</span>
-            <Select
-              value={String(pageSize)}
-              onValueChange={(v) => {
-                const n = Number(v); setPageSize(n); setPage(1);
-                savePrefs(tableId, { pageSize: n });
-              }}
-            >
-              <SelectTrigger className="h-7 w-16 text-xs"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {PAGE_SIZES.map((n) => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <span className="whitespace-nowrap">
-              Page {safePage} of {totalPages} — {processed.length} records
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="sm" onClick={() => setPage(1)} disabled={safePage === 1}>First</Button>
-            <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={safePage === 1}>Prev</Button>
-            <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}>Next</Button>
-            <Button variant="outline" size="sm" onClick={() => setPage(totalPages)} disabled={safePage === totalPages}>Last</Button>
-            <Button variant="ghost" size="icon" onClick={handleReset} title="Reset table to defaults" className="h-7 w-7 ml-2 text-muted-foreground hover:text-foreground">
+        <PaginationBar
+          page={safePage}
+          totalPages={totalPages}
+          total={processed.length}
+          size={pageSize}
+          onPage={(p) => setPage(p)}
+          onSize={(n) => { setPageSize(n); setPage(1); savePrefs(tableId, { pageSize: n }); }}
+          extra={
+            <Button variant="ghost" size="icon" onClick={handleReset} title="Reset table to defaults" className="size-8 text-muted-foreground hover:text-foreground">
               <Settings2 className="h-4 w-4" />
             </Button>
-          </div>
-        </div>
+          }
+        />
       )}
 
       {/* Right-click column visibility context menu */}

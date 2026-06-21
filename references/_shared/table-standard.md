@@ -43,12 +43,17 @@ A reusable `<SmartTable>` component already exists in `frontend/components/`. **
 - [ ] Sort, visibility, and width references all update to follow the new order
 
 ### 5. Pagination
-- [ ] Default page size: 10
-- [ ] Page size selector: `[10, 25, 50, 75, 100]`
-- [ ] Pagination bar text: `"Page {current} of {totalPages} — {totalRecords} records"`
-- [ ] Navigation buttons: First, Previous, Next, Last
-- [ ] Changing page size resets to page 1
-- [ ] If current page exceeds total pages after a filter change, reset to page 1
+- [ ] Default page size: 10 · page-size selector `[10, 25, 50, 75, 100]`
+- [ ] **One grouped cluster** — NEVER split rows-per-page on the left and the nav buttons on
+      the right. Lay it out as a single right-aligned group:
+      `{totalRecords} records · Rows [size▾] · « ‹ [page] of {totalPages} › »`
+- [ ] **Icon buttons** for first / prev / next / last (`«` `‹` `›` `»`) — not word buttons.
+- [ ] **Editable page field** (a number `<input>`) between `‹` and `›` so the user can jump
+      to a specific page (essential when there are hundreds/thousands of pages).
+- [ ] Shows the **true total record count** (the real total, not the loaded slice).
+- [ ] Changing page size resets to page 1; if current page exceeds total after a filter
+      change, reset to page 1.
+- [ ] Use the shared `PaginationBar` so every table's pagination looks identical.
 
 ### 6. Persistence (localStorage, keyed per table)
 - [ ] Key format: `table_prefs_{tableId}` (use a stable, descriptive `tableId`)
@@ -73,6 +78,33 @@ A reusable `<SmartTable>` component already exists in `frontend/components/`. **
 - [ ] Touch-friendly tap targets on every interactive header
 
 ---
+
+## Large or server-backed tables — paginate on the SERVER
+
+⚠️ **The #1 pagination bug: capping the query (e.g. `LIMIT 100`) and then client-paginating
+only those rows.** The user sees "100 records", paginates within them, and can never reach
+the rest of the dataset. **NEVER do this.** It looks like it works in a demo and is wrong.
+
+Decide per table, by data size:
+
+| Data | Strategy |
+| --- | --- |
+| **≤ ~1–2k rows, fully loadable** | **Client-side** (`SmartTable`): load *all* rows, search/sort/paginate in the browser. |
+| **Large or fetched per-request** (SQL/API, can exceed a few k rows) | **Server-side pagination** — page, sort, and count on the server. |
+
+Server-side pagination requirements:
+- The query returns **`{ rows, total }`**: `LIMIT {size} OFFSET {(page-1)*size}` for the slice,
+  plus a `COUNT(*)` (with the same filters) for the true total → real "page X of Y".
+- **Sorting AND search run on the server** over the *whole* dataset, driven by URL params
+  (`?page=&size=&sort=&dir=&q=`) — not client-side over the loaded slice.
+- `ORDER BY` on a user-supplied column **must be whitelisted** (validate against a fixed set;
+  never interpolate raw input) — otherwise it's a SQL-injection vector.
+- A search/filter change resets to **page 1**.
+- Reuse the **same `PaginationBar`**, with its page/size handlers updating the **URL** (which
+  re-fetches) instead of local component state.
+
+A single page may mix both: a small lookup table client-side next to a big transactional
+table server-side.
 
 ## tableId conventions
 

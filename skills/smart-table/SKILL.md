@@ -96,6 +96,23 @@ Read the template file, then write it to the project. The component includes:
 - Gear icon → reset to defaults
 - Loading skeleton and empty state
 
+### 2d. Create `components/ui/pagination-bar.tsx`
+
+Copy `skills/shared/templates/pagination-bar.tsx` → project's `components/ui/pagination-bar.tsx`.
+This is the **shared** pagination control: one grouped cluster with icon buttons (`« ‹ › »`),
+an **editable page field**, rows-per-page, and the total count. BOTH SmartTable and ServerTable
+use it — never hand-roll per-table pagination, and never split rows-per-page on the left and
+the buttons on the right.
+
+### 2e. Create `components/ui/server-table.tsx` (for large / server-backed tables)
+
+Copy `skills/shared/templates/server-table.tsx` → project's `components/ui/server-table.tsx`.
+Use this **instead of SmartTable** for any table whose dataset can exceed ~1–2k rows or is
+fetched per request. It paginates + sorts on the SERVER via URL params and renders the same
+PaginationBar. See `references/_shared/table-standard.md` → "Large or server-backed tables".
+⚠️ **Never** load a capped slice (e.g. `LIMIT 100`) into a client SmartTable and paginate it —
+that's the "only 100 records" bug: the user can never reach the rest of the data.
+
 ### Install required shadcn/ui components
 
 ```bash
@@ -218,14 +235,19 @@ Residual plain <table>: ✅ 0
 
 ## Edge cases
 
-**Dataset > 500 rows** — add this comment above the SmartTable usage:
-```tsx
-{/* ⚠️ Dataset exceeds 500 rows — consider adding @tanstack/react-virtual
-    for virtualized tbody rendering to maintain scroll performance. */}
-```
+**Dataset can exceed ~1–2k rows, or is fetched per request → use `ServerTable`, not SmartTable.**
+This is not an afterthought — decide it FIRST, per table. Client SmartTable loads the whole
+array into the browser; that's only viable for small, fully-loadable datasets.
+- ✅ **≤ ~1–2k rows, fully loadable** → SmartTable (client search/sort/paginate over all rows).
+- ✅ **Large / server-backed** → `ServerTable` (component/ui/server-table.tsx): the page runs a
+  `{ rows, total }` query (`LIMIT/OFFSET` + `COUNT`) with **server-side sort over a whitelisted
+  column** and a URL-param search/filter toolbar. See table-standard.md → "Large or server-backed".
+- ❌ **NEVER** cap the query (`LIMIT 100`) and feed that slice to SmartTable's client pagination —
+  the user sees "100 records" and can't reach the rest. This is the most common table bug.
 
-**Multi-table page** — each table on the same page gets a distinct `tableId`.
+**Multi-table page** — each table on the same page gets a distinct `tableId`. A page may mix a
+client SmartTable (small lookup) and a server `ServerTable` (big transactional set).
 
-**Server-side data** — if data is paginated on the server (cursor-based or offset), do NOT use SmartTable's client-side pagination. Note this in the report and leave the existing pagination logic in place; only add the search, sort column headers, and column management features from SmartTable as individual pieces.
+**Non-React stacks** — if the app uses Vue or plain HTML, generate equivalent implementations following the same data pipeline order: column filters → search → sort → paginate.
 
 **Non-React stacks** — if the app uses Vue or plain HTML, generate equivalent implementations following the same data pipeline order: column filters → search → sort → paginate.
