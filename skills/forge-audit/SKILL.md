@@ -368,6 +368,7 @@ If yes, ensure all required labels exist:
 ```bash
 for label in \
   audit critical high medium low status:agent-todo \
+  phase:frontend phase:backend phase:database phase:integration \
   dead-code missing-impl data-integrity security consistency saas-pages \
   ux-audit ux-flow ux-interaction ux-state ux-consistency \
   workflow-audit workflow-completeness workflow-logic workflow-edge-case
